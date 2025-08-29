@@ -8,9 +8,11 @@ import lombok.Setter;
 public class ListResponseDTO<T> {
 
   private T list;
+  private int totalCount;
 
   public static <T> ListResponseDTO<T> of(T list) {
     ListResponseDTO<T> response = new ListResponseDTO<>();
+    response.setTotalCount(((java.util.Collection<?>) list).size());
     response.setList(list);
     return response;
   }
