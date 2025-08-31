@@ -15,7 +15,9 @@ public class WebConfig implements WebMvcConfigurer {
                 "http://localhost:5173",
                 "https://api.hackathoner.store",
                 "https://www.hackathoner.store",
-                "https://hackathoner.store"
+                "https://hackathoner.store",
+                "https://2025-seasonthon-team-24-fe.vercel.app",
+                "https://2025-seasonthon-team-24-fe.vercel.app"
             )
                 .allowCredentials(true)
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")

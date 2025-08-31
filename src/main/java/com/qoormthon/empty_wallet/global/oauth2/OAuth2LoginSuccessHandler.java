@@ -52,7 +52,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         // TODO: 소셜로그인이 완료된 후 사용자를 어디로 리다이렉트할지 결정해야 합니다.
 
         // 신규 사용자라면 회원가입 페이지로 리다이렉트 (회원가입 로그인 여부에 따라 파라미터 추가)
-        response.sendRedirect("https://www.hackathoner.store?status=" + (isNewUser ? "signup" : "login"));
+        response.sendRedirect("https://2025-seasonthon-team-24-fe.vercel.app?status=" + (isNewUser ? "signup" : "login"));
 
     }
 }
