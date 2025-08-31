@@ -16,7 +16,6 @@ public class WebConfig implements WebMvcConfigurer {
                 "https://api.hackathoner.store",
                 "https://www.hackathoner.store",
                 "https://hackathoner.store",
-                "https://2025-seasonthon-team-24-fe.vercel.app",
                 "https://2025-seasonthon-team-24-fe.vercel.app"
             )
                 .allowCredentials(true)
