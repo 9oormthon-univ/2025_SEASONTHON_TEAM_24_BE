@@ -1,5 +1,6 @@
 package com.qoormthon.empty_wallet.domain.user.entity;
 
+import com.qoormthon.empty_wallet.domain.character.entity.Character;
 import com.qoormthon.empty_wallet.domain.user.dto.Gender;
 import com.qoormthon.empty_wallet.domain.user.dto.SocialProvider;
 import com.qoormthon.empty_wallet.global.security.core.Role;
@@ -7,8 +8,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -24,7 +28,9 @@ public class User {
   @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
   private Long id;
 
-  //TODO: character_id 연관관계 매핑이 필요합니다.
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "character_id")
+  private Character character;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
