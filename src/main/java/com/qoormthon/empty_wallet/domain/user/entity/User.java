@@ -1,6 +1,6 @@
 package com.qoormthon.empty_wallet.domain.user.entity;
 
-import com.qoormthon.empty_wallet.domain.user.service.SocialProvider;
+import com.qoormthon.empty_wallet.domain.user.dto.SocialProvider;
 import com.qoormthon.empty_wallet.global.security.core.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,7 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,20 +23,33 @@ public class User {
   @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
   private Long id;
 
-  @Column(unique = true, nullable = false)
-  private String socialEmail;
+  //TODO: character_id 연관관계 매핑이 필요합니다.
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
-  private SocialProvider provider;
+  private SocialProvider authType;
+
+  @Column(unique = true, nullable = false)
+  private String socialEmail;
+
+  @Column
+  private String nickname;
+
+  @Column
+  private String name;
+
+  @Column
+  private Integer age;
+
+
 
   @Enumerated(EnumType.STRING)
   private Role role;
 
   @Builder
-  private User(Long id, String socialEmail, Role role, SocialProvider provider) {
+  private User(Long id, String socialEmail, Role role, SocialProvider authType) {
     this.id = id;
-    this.provider = provider;
+    this.authType = authType;
     this.socialEmail = socialEmail;
     this.role = role;
   }
@@ -48,11 +60,11 @@ public class User {
    * @param socialEmail 소셜로그인 후 반환되는 사용자 이메일 입니다.
    * @return 생성된 User 객체
    */
-  public static User createStandardUser(String socialEmail, SocialProvider provider) {
+  public static User createStandardUser(String socialEmail, SocialProvider authType) {
     return User.builder()
         .id(null)
         .socialEmail(socialEmail)
-        .provider(provider)
+        .authType(authType)
         .role(Role.ROLE_USER)
         .build();
   }

@@ -1,4 +1,4 @@
-package com.qoormthon.empty_wallet.domain.user.service;
+package com.qoormthon.empty_wallet.domain.user.dto;
 
 public enum SocialProvider {
 	KAKAO("kakao"),
