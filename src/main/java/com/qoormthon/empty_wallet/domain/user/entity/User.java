@@ -1,5 +1,6 @@
 package com.qoormthon.empty_wallet.domain.user.entity;
 
+import com.qoormthon.empty_wallet.domain.user.dto.Gender;
 import com.qoormthon.empty_wallet.domain.user.dto.SocialProvider;
 import com.qoormthon.empty_wallet.global.security.core.Role;
 import jakarta.persistence.Column;
@@ -41,7 +42,20 @@ public class User {
   @Column
   private Integer age;
 
+  @Column
+  private Gender gender; // MALE, FEMALE
 
+  @Column
+  private String birthDate; // ex) 1995-03-15
+
+  @Column
+  private Long monthlyPay;
+
+  @Column
+  private Long monthlyCost;
+
+  @Column
+  private Long targetPrice;
 
   @Enumerated(EnumType.STRING)
   private Role role;
