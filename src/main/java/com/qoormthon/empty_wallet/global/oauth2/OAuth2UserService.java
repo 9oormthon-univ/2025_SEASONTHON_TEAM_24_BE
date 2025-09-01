@@ -2,7 +2,7 @@ package com.qoormthon.empty_wallet.global.oauth2;
 
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repositroy.UserRepository;
-import com.qoormthon.empty_wallet.domain.user.service.SocialProvider;
+import com.qoormthon.empty_wallet.domain.user.dto.SocialProvider;
 import com.qoormthon.empty_wallet.global.security.core.CustomUserDetails;
 import com.qoormthon.empty_wallet.global.security.jwt.JwtTokenProvider;
 import java.util.Collections;
@@ -84,7 +84,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         // 회원 정보가 DB에 존재하는지 확인
       User userExam = User.createStandardUser(socialEmail, SocialProvider.fromString(provider));
-      log.info("userExam = " + userExam.getProvider());
+      log.info("userExam = " + userExam.getAuthType());
 
 
         User user = userRepository.findBySocialEmail(socialEmail)
