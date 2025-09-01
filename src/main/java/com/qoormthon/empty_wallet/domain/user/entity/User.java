@@ -18,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.cache.internal.NaturalIdCacheKey;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -67,17 +68,31 @@ public class User {
   private Role role;
 
   @Builder
-  private User(Long id, String socialEmail, Role role, SocialProvider authType) {
+  private User(Long id, String socialEmail, Role role, SocialProvider authType,
+      Character character, String nickname, String name,
+      Integer age, Gender gender, String birthDate,
+      Long monthlyPay, Long monthlyCost, Long targetPrice) {
     this.id = id;
     this.authType = authType;
     this.socialEmail = socialEmail;
     this.role = role;
+
+    this.character = character;
+    this.nickname = nickname;
+    this.name = name;
+    this.age = age;
+    this.gender = gender;
+    this.birthDate = birthDate;
+    this.monthlyPay = monthlyPay;
+    this.monthlyCost = monthlyCost;
+    this.targetPrice = targetPrice;
   }
 
   /**
    * 일반 사용자를 생성하는 메서드 입니다
    *
    * @param socialEmail 소셜로그인 후 반환되는 사용자 이메일 입니다.
+   * @param authType 소셜로그인 종류 입니다. (KAKAO, GOOGLE)
    * @return 생성된 User 객체
    */
   public static User createStandardUser(String socialEmail, SocialProvider authType) {
@@ -86,6 +101,17 @@ public class User {
         .socialEmail(socialEmail)
         .authType(authType)
         .role(Role.ROLE_USER)
+
+        .character(null)
+        .nickname(null)
+        .name(null)
+        .age(null)
+        .gender(null)
+        .birthDate(null)
+        .monthlyPay(null)
+        .monthlyCost(null)
+        .targetPrice(null)
+
         .build();
   }
 
