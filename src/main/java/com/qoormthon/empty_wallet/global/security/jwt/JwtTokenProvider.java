@@ -175,6 +175,7 @@ public class JwtTokenProvider {
 
     // Authorization 헤더가 없거나 "Bearer "로 시작하지 않는 경우 예외 처리
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      log.error("Authorization 헤더가 없거나 Bearer 로 시작하지 않습니다.");
       throw new TokenExtractionException(ErrorCode.TOKEN_EXTRACTION_FAILED);
     }
 

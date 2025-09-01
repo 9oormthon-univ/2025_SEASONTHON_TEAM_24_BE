@@ -1,6 +1,7 @@
 package com.qoormthon.empty_wallet.global.exception;
 
 
+import com.qoormthon.empty_wallet.domain.auth.exception.TokenExtractionException;
 import com.qoormthon.empty_wallet.domain.user.exception.UserNotFoundException;
 import com.qoormthon.empty_wallet.global.common.dto.response.ResponseDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   @ExceptionHandler(NotFoundInfoException.class)
   public ResponseEntity<ResponseDTO> NotFoundInfoException(NotFoundInfoException e) {
+    return ResponseEntity.status(e.getErrorCode().getHttpStatus())
+        .body(ResponseDTO.of(e.getErrorCode()));
+  }
+
+  @ExceptionHandler(TokenExtractionException.class)
+  public ResponseEntity<ResponseDTO> tokenExtractionException(TokenExtractionException e) {
     return ResponseEntity.status(e.getErrorCode().getHttpStatus())
         .body(ResponseDTO.of(e.getErrorCode()));
   }
