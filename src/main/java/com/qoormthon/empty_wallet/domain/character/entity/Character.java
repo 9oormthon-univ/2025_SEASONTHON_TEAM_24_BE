@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "character")
+@Table(name = "characters")
 public class Character {
 
   @Id @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)

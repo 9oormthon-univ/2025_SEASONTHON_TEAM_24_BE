@@ -84,7 +84,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         // 회원 정보가 DB에 존재하는지 확인
       User userExam = User.createStandardUser(socialEmail, SocialProvider.fromString(provider));
-      log.info("userExam = " + userExam.getProvider());
+      log.info("userExam = " + userExam.getAuthType());
 
 
         User user = userRepository.findBySocialEmail(socialEmail)
