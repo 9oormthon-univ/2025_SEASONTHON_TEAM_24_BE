@@ -55,7 +55,8 @@ public class SecurityConfig {
                 "/v3/api-docs/**",
                 "/api/**",
                 "/oauth2/**",
-                "/login/oauth2/code/**"
+                "/login/oauth2/code/**",
+                "/api/auth/**"
             ).permitAll()
             .anyRequest().authenticated())
         .exceptionHandling(e -> e

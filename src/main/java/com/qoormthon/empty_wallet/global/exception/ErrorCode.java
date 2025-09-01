@@ -43,6 +43,7 @@ public enum ErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "인증이 필요합니다."),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "TOKEN_EXPIRED", "토큰이 만료되었습니다."),
     TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "TOKEN_INVALID", "유효하지 않은 토큰입니다."),
+    TOKEN_EXTRACTION_FAILED(HttpStatus.UNAUTHORIZED, "TOKEN_EXTRACTION_FAILED", "토큰 추출에 실패했습니다."),
 
     // 403 Forbidden
     SELF_ACCESS_ONLY(HttpStatus.FORBIDDEN, "SELF_ACCESS_ONLY", "본인의 정보만 조회할 수 있습니다."),
