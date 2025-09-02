@@ -20,7 +20,8 @@ public class UserService {
    * @return 목표 금액까지 걸리는 예상 일수 (소수점 첫째 자리까지 표시)
    */
   public double getDaysToGoal(Long targetPrice, Long monthlyPay, Long monthlyCost) {
-    double days = ((double)targetPrice/(monthlyPay-monthlyCost))*30;
+    double savingMoney = (monthlyPay-monthlyCost)/10.0; // 하루 저축 금액
+    double days = ((double)targetPrice/(savingMoney))*30;
     double roundedDays = Math.round(days); // 소수점 반올림하도록 수정
 
     // 계산 결과가 음수일 경우 예외 처리
