@@ -21,7 +21,7 @@ public class UserService {
    */
   public double getDaysToGoal(Long targetPrice, Long monthlyPay, Long monthlyCost) {
     double days = ((double)targetPrice/(monthlyPay-monthlyCost))*30;
-    double roundedDays = Math.round(days * 10.0) / 10.0;
+    double roundedDays = Math.round(days); // 소수점 반올림하도록 수정
 
     // 계산 결과가 음수일 경우 예외 처리
     if(roundedDays < 0) {

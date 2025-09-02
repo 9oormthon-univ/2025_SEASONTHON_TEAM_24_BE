@@ -1,4 +1,4 @@
-package com.qoormthon.empty_wallet.domain.user.dto;
+package com.qoormthon.empty_wallet.domain.user.entity;
 
 public enum Gender {
 
