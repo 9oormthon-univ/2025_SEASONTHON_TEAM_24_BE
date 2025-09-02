@@ -1,15 +1,11 @@
 package com.qoormthon.empty_wallet.domain.strategy.service;
 
-import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO;
 import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO.Strategy;
 import com.qoormthon.empty_wallet.global.exception.ErrorCode;
 import com.qoormthon.empty_wallet.global.exception.InternalServerException;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,7 +18,7 @@ public class StrategyService {
   public List<Strategy> getStrategiesByType(String type, int page, int size) {
     try {
       List<Strategy> filteredStrategies = strategies.stream()
-          .filter(strategy -> strategy.getType().equals(type))
+          .filter(strategy -> strategy.getType().equals(type.toUpperCase()))
           .toList();
 
       int start = page * size;

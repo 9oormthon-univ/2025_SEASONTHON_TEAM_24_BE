@@ -15,6 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 전략 관련 API 입니다.
+ * 타입별 전략 정보를 조회하는 기능을 제공합니다.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/strategies")
