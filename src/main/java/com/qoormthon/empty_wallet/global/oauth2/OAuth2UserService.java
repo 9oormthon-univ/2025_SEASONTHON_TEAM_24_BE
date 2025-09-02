@@ -2,7 +2,7 @@ package com.qoormthon.empty_wallet.global.oauth2;
 
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repositroy.UserRepository;
-import com.qoormthon.empty_wallet.domain.user.dto.SocialProvider;
+import com.qoormthon.empty_wallet.domain.user.entity.SocialProvider;
 import com.qoormthon.empty_wallet.global.security.core.CustomUserDetails;
 import com.qoormthon.empty_wallet.global.security.jwt.JwtTokenProvider;
 import java.util.Collections;
