@@ -1,6 +1,5 @@
-package com.qoormthon.empty_wallet.domain.character.Repository;
+package com.qoormthon.empty_wallet.domain.character.repository;
 
-import com.qoormthon.empty_wallet.domain.character.docs.CharacterDocs;
 import com.qoormthon.empty_wallet.domain.character.entity.Character;
 import org.springframework.data.jpa.repository.JpaRepository;
 
