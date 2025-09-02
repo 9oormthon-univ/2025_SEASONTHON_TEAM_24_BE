@@ -1,5 +1,6 @@
 package com.qoormthon.empty_wallet.domain.survey.controller;
 
+import com.qoormthon.empty_wallet.domain.survey.docs.SurveyDocs;
 import com.qoormthon.empty_wallet.domain.survey.dto.request.SubmitSurveyRequest;
 import com.qoormthon.empty_wallet.domain.survey.dto.response.SubmitSurveyResponse;
 import com.qoormthon.empty_wallet.domain.survey.dto.response.SurveyBundleResponse;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/surveys")
 @RequiredArgsConstructor
-public class SurveyController {
+public class SurveyController implements SurveyDocs {
 
     private final SurveyQueryService queryService;
     private final SurveyCommandService commandService;
