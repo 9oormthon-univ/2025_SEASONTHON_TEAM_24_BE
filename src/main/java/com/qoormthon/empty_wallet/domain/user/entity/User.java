@@ -1,8 +1,6 @@
 package com.qoormthon.empty_wallet.domain.user.entity;
 
 import com.qoormthon.empty_wallet.domain.character.entity.Character;
-import com.qoormthon.empty_wallet.domain.user.dto.Gender;
-import com.qoormthon.empty_wallet.domain.user.dto.SocialProvider;
 import com.qoormthon.empty_wallet.global.security.core.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +16,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.cache.internal.NaturalIdCacheKey;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
