@@ -9,5 +9,5 @@ public record SubmitSurveyRequest(
         SurveyType type,                 // FULL | QUICK
         List<Answer> answers          // 질문ID + 보기 타입(A~F)
 ) {
-    public record Answer(Long surveyId, String optionType, String code) {}
+    public record Answer(Long surveyId, String optionType) {}
 }

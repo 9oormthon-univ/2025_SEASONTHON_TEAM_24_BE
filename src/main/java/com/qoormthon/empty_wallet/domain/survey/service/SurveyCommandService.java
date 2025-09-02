@@ -73,37 +73,20 @@ public class SurveyCommandService {
 
         for (var entry : lastBySurvey.entrySet()) {
             Long surveyId = entry.getKey();
-            var a = entry.getValue();
-            String optType = a.optionType();
-            String code = a.code(); // QUICK Q3 같은 케이스에서 필요
+            String optType = entry.getValue().optionType();
 
             List<SurveyOption> candidates = bySurveyType
                     .getOrDefault(surveyId, Map.of())
                     .getOrDefault(optType, List.of());
 
             if (candidates.isEmpty()) {
-                // 존재하지 않는 보기(type) → 무시
+                // 존재하지 않는 보기 → 무시
                 continue;
             }
 
-            Long optionId = null;
-
-            if (candidates.size() == 1) {
-                // (surveyId, type)이 유일 → code 없이도 단일 매칭
-                optionId = candidates.get(0).getId();
-            } else {
-                // 동일 (surveyId, type)이 여러 개 → code로 구분 필수
-                if (code == null || code.isBlank()) {
-                    // 모호 → 무시 (혹은 예외로 바꿔도 됨)
-                    continue;
-                }
-                optionId = bySurveyTypeCode.get(key(surveyId, optType, code));
-            }
-
-            if (optionId != null) {
-                accepted++;
-                answeredSurveyIds.add(surveyId);
-            }
+            // code는 더 이상 요구하지 않음. 하나라도 존재하면 유효 처리.
+            accepted++;
+            answeredSurveyIds.add(surveyId);
         }
 
         // 5) 완료 판정: 유효하게 답한 "서베이ID의 개수"가 전체 문항 수와 같으면 완료
