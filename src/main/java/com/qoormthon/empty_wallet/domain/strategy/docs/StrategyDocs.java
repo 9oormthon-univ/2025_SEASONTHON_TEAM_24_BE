@@ -48,7 +48,6 @@ public interface StrategyDocs {
                           "totalCount": 2
                         }
                       }
-                      Response headers
                   """
           )
       )

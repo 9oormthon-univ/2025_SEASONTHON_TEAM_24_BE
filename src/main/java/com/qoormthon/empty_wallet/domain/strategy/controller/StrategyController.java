@@ -1,5 +1,6 @@
 package com.qoormthon.empty_wallet.domain.strategy.controller;
 
+import com.qoormthon.empty_wallet.domain.strategy.docs.StrategyDocs;
 import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO.Strategy;
 import com.qoormthon.empty_wallet.domain.strategy.service.StrategyService;
 import com.qoormthon.empty_wallet.global.common.dto.response.ListResponseDTO;
@@ -22,10 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/strategies")
-public class StrategyController {
+public class StrategyController implements StrategyDocs {
 
   private final StrategyService strategyService;
 
+  @Override
   @GetMapping
   public ResponseDTO<ListResponseDTO<List<Strategy>>> getStrategiesByType(
       @RequestParam String type,
