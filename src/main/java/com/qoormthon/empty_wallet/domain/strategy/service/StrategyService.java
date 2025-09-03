@@ -1,6 +1,6 @@
 package com.qoormthon.empty_wallet.domain.strategy.service;
 
-import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO.Strategy;
+import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO;
 import com.qoormthon.empty_wallet.global.exception.ErrorCode;
 import com.qoormthon.empty_wallet.global.exception.InternalServerException;
 import java.util.List;
@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class StrategyService {
 
-  private final List<Strategy> strategies;
+  private final List<StrategyDataDTO> strategies;
 
-  public List<Strategy> getStrategiesByType(String type, int page, int size) {
+  public List<StrategyDataDTO> getStrategiesByType(String type, int page, int size) {
     try {
-      List<Strategy> filteredStrategies = strategies.stream()
+      List<StrategyDataDTO> filteredStrategies = strategies.stream()
           .filter(strategy -> strategy.getType().equals(type.toUpperCase()))
           .toList();
 

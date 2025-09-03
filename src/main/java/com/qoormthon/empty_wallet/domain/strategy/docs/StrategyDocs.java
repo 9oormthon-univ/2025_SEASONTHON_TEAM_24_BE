@@ -1,6 +1,6 @@
 package com.qoormthon.empty_wallet.domain.strategy.docs;
 
-import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO.Strategy;
+import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO;
 import com.qoormthon.empty_wallet.global.common.dto.response.ListResponseDTO;
 import com.qoormthon.empty_wallet.global.common.dto.response.ResponseDTO;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -52,5 +52,5 @@ public interface StrategyDocs {
           )
       )
   )
-  public ResponseDTO<ListResponseDTO<List<Strategy>>> getStrategiesByType(String type, int page, int size);
+  public ResponseDTO<ListResponseDTO<List<StrategyDataDTO>>> getStrategiesByType(String type, int page, int size);
 }

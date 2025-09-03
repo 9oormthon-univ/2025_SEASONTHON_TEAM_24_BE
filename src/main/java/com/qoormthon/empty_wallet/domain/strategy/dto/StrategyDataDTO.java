@@ -11,18 +11,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class StrategyDataDTO {
-  private List<Strategy> strategies;
 
-  @AllArgsConstructor
-  @NoArgsConstructor
-  @Getter
-  @Setter
-  public static class Strategy {  // import 제거하고 직접 정의
-    private String type;
-    private String title;
-    private String description;
-    private Integer dailySaving;  // Long -> Integer 변경
-    private String howToStep;
-    private String word;
-  }
+  private String type;
+  private String title;
+  private String description;
+  private Integer dailySaving;  // Long -> Integer 변경
+  private String howToStep;
+  private String word;
+
 }
