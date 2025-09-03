@@ -118,8 +118,9 @@ public class User {
    * @return 목표 금액까지 걸리는 예상 일수 (소수점 첫째 자리까지 표시)
    */
   public double getDaysToGoal() {
-    double days = ((double)this.targetPrice/(this.monthlyPay-monthlyCost))*30;
-    return Math.round(days * 10.0) / 10.0;
+    double savingMoney = (this.monthlyPay-this.monthlyCost)/10.0; // 하루 저축 금액
+    double days = ((double)this.targetPrice/(savingMoney))*30;
+    return (double) Math.round(days);
   }
 
 }
