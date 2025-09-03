@@ -49,38 +49,58 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  FilterChain filterChain) throws ServletException, IOException {
+                                  HttpServletResponse response, FilterChain filterChain
+  ) throws ServletException, IOException {
+
     try {
-      // TraceID 발급
+      //TraceID 발급 및 설정
       TraceIdHolder.set(UUID.randomUUID().toString().substring(0, 8));
 
-      String url = request.getRequestURI();
-      String method = request.getMethod();
+      //요청 헤더에서 JWT 토큰을 추출합니다.
       String accessToken = this.getTokenFromRequest(request);
 
-      // 토큰이 있고 유효하면 인증 세팅 시도
-      if (StringUtils.hasText(accessToken) && jwtTokenProvider.validateToken(accessToken)) {
-        try {
-          UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(accessToken);
-          SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-          log.info("[{}][{}] {} {} (auth set)", TraceIdHolder.get(), request.getRemoteAddr(), method, url);
-        } catch (UserNotFoundException e) {
-          // 유저가 없으면 응답 쓰지 않고 '비인증' 상태로 계속 진행 (공개 API 깨지지 않도록)
-          log.warn("[{}] user not found for token, proceed unauthenticated. uri={}",
-                  TraceIdHolder.get(), url);
-        }
+      //로깅을 위해 요청 URL을 가져옵니다.
+      String url = request.getRequestURI().toString();
+
+      //로깅을 위해 요청 메서드를 가져옵니다.
+      String method = request.getMethod();
+
+      //토큰이 존재하고 유효한 경우를 확인합니다.
+      if (jwtTokenProvider.validateToken(accessToken) && accessToken != null) {
+        log.info(
+                "[" + TraceIdHolder.get() + "]" + "[" + request.getRemoteAddr() + "]:" + "[" + method
+                        + ":" + url + "]" + "(allowed)");
+
+        //토큰에서 사용자 조회 후 인증 객체를 생성합니다.(유저가 존재하지 않을 경우 CustomUserNotFoundException 발생)
+        UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(accessToken);
+
+        //인증된 사용자 객체를 시큐리티 컨텍스트에 설정합니다.
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
       } else {
-        // 토큰 없거나 무효 → 비인증 상태로 진행
-        log.info("[{}][{}] {} {} (no/invalid token)", TraceIdHolder.get(), request.getRemoteAddr(), method, url);
+        log.info(
+                "[" + TraceIdHolder.get() + "]" + "[" + request.getRemoteAddr() + "]:" + "[" + method
+                        + ":" + url + "]" + "(denied)");
       }
 
       filterChain.doFilter(request, response);
+
+    } catch (UserNotFoundException e) {
+      log.info(
+              "[" + TraceIdHolder.get() + "]" + "(해당 사용자를 찾을 수 없습니다.)");
+
+      // 유저가 존재하지 않을 경우 반환되는 json 응답.
+      String userNotFoundExceptionResponse = objectMapper
+              .writeValueAsString(ResponseDTO.of(ErrorCode.USER_NOT_FOUND));
+      response.setStatus(ErrorCode.USER_NOT_FOUND.getHttpStatus().value());
+      response.setContentType("application/json");
+      response.getWriter().write(userNotFoundExceptionResponse);
+
     } finally {
+      // 요청이 끝난 후 TraceIdHolder를 정리합니다.
       TraceIdHolder.clear();
+
     }
   }
-
 
 
   /**
@@ -113,9 +133,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     UserDetails userDetails = customUserDetailsService.loadUserById(userId);
 
     return new UsernamePasswordAuthenticationToken(
-        userDetails,
-        null,
-        userDetails.getAuthorities()
+            userDetails,
+            null,
+            userDetails.getAuthorities()
     );
   }
 
