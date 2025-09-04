@@ -7,6 +7,7 @@ import com.qoormthon.empty_wallet.domain.survey.dto.request.SubmitSurveyRequest;
 import com.qoormthon.empty_wallet.domain.survey.entity.SurveyOption;
 import com.qoormthon.empty_wallet.domain.survey.entity.SurveyType;
 import com.qoormthon.empty_wallet.domain.survey.repository.SurveyOptionRepository;
+import com.qoormthon.empty_wallet.domain.survey.service.CharacterResolverService;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,33 +23,80 @@ public class CharacterScoreService {
     private final SurveyOptionRepository optionRepo;
     private final ScoreRepository scoreRepo;
     private final UserRepository userRepo;
+    private final CharacterResolverService characterResolver;
+
+    private static final long QUICK_Q1_SURVEY_ID = 11L;
 
     @Transactional
     public void applySurvey(Long userId, SubmitSurveyRequest req) {
         User user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("USER_NOT_FOUND"));
 
-        // 1) 캐릭터별 합산
+        final String userChar = characterResolver.resolve(null, userId); // ex) "CAF","YOLO",...
+
         EnumMap<CharCode, Long> sum = new EnumMap<>(CharCode.class);
         for (CharCode c : CharCode.values()) sum.put(c, 0L);
 
         Set<Long> answeredSurveyIds = new HashSet<>();
+
         for (SubmitSurveyRequest.Answer a : req.answers()) {
-            SurveyOption opt = optionRepo.findBySurveyIdAndType(a.surveyId(), a.optionType())
-                    .orElseThrow(() -> new IllegalArgumentException("OPTION_NOT_FOUND"));
+
+            SurveyOption opt;
+            if (req.type() == SurveyType.QUICK) {
+                var candidates = optionRepo.findAllBySurveyIdAndType(a.surveyId(), a.optionType());
+                if (candidates.isEmpty()) throw new IllegalArgumentException("OPTION_NOT_FOUND");
+
+                opt = candidates.stream()
+                        .filter(o -> userChar != null
+                                && userChar.equalsIgnoreCase(Objects.toString(o.getCode(), "")))
+                        .findFirst()
+                        .orElseGet(() -> candidates.stream()
+                                .filter(o -> o.getCode() == null || o.getCode().isBlank())
+                                .findFirst()
+                                .orElse(candidates.get(0)));
+            } else {
+                opt = optionRepo.findBySurveyIdAndType(a.surveyId(), a.optionType())
+                        .orElseThrow(() -> new IllegalArgumentException("OPTION_NOT_FOUND"));
+            }
+
             answeredSurveyIds.add(a.surveyId());
 
-            String[] codes = opt.getCode().split(",");
-            int weight = opt.getWeight();              // 예: 21, -11
-            int sign = weight < 0 ? -1 : 1;
-            String digits = String.valueOf(Math.abs(weight));
-            if (digits.length() < codes.length) {      // 자릿수 모자라면 0-패딩
-                digits = String.format("%0" + codes.length + "d", Integer.parseInt(digits));
+            String rawCode = opt.getCode();
+
+            // QUICK Q1 보정
+            if (rawCode == null || rawCode.isBlank()) {
+                // code가 없는 일반 문항인데, QUICK Q1이면 사용자 캐릭터 버킷에 weight 가산
+                if (req.type() == SurveyType.QUICK && isQuickQ1(a.surveyId()) && userChar != null && !userChar.isBlank()) {
+                    int w = Optional.ofNullable(opt.getWeight()).orElse(0); // -2 ~ +2
+                    CharCode code = CharCode.of(userChar);
+                    sum.put(code, sum.get(code) + w);
+                }
+                // QUICK Q1이 아니거나 사용자 캐릭터를 모르면 스킵
+                continue;
             }
-            for (int i = 0; i < codes.length; i++) {
-                CharCode code = CharCode.of(codes[i]);
-                int d = (i < digits.length()) ? (digits.charAt(i) - '0') : 0;
-                sum.put(code, sum.get(code) + sign * d);
+
+            // 다코드/단일코드 처리
+            String[] codes = Arrays.stream(rawCode.split(","))
+                    .map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+            if (codes.length == 0) continue;
+
+            int weight = Optional.ofNullable(opt.getWeight()).orElse(0);
+            int sign = weight < 0 ? -1 : 1;
+            int abs = Math.abs(weight);
+
+            if (codes.length == 1) {
+                CharCode code = CharCode.of(codes[0]);
+                sum.put(code, sum.get(code) + (long) sign * abs);
+            } else {
+                String digits = String.valueOf(abs);
+                if (digits.length() < codes.length) {
+                    digits = String.format("%0" + codes.length + "d", abs);
+                }
+                for (int i = 0; i < codes.length; i++) {
+                    CharCode code = CharCode.of(codes[i]);
+                    int d = (i < digits.length()) ? (digits.charAt(i) - '0') : 0;
+                    sum.put(code, sum.get(code) + (long) sign * d);
+                }
             }
         }
 
@@ -97,6 +145,10 @@ public class CharacterScoreService {
         s.addCaf(-s.getCaf());  s.addTax(-s.getTax());  s.addImp(-s.getImp());
         s.addSub(-s.getSub());  s.addYolo(-s.getYolo()); s.addFash(-s.getFash());
         addAll(s, m);
+    }
+
+    private boolean isQuickQ1(Long surveyId) {
+        return Objects.equals(surveyId, QUICK_Q1_SURVEY_ID);
     }
 
     private void addAll(Score s, EnumMap<CharCode, Long> m) {
