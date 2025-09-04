@@ -26,6 +26,7 @@ public class SurveyService {
             Set.of("CAF","TAX","FASH","SUB","IMP","YOLO");
 
     private final SurveyRepository surveyRepo;
+    private final SurveyCommandService commandService; // 검증 로직
     private final SurveyOptionRepository optionRepo;
 
     private final CharacterScoreService characterScoreService;
@@ -86,20 +87,26 @@ public class SurveyService {
     // =====================[ 제출: 응답 미저장, 점수만 반영 ]=====================
     @Transactional
     public SubmitSurveyResponse submit(Long userId, SubmitSurveyRequest req) {
-        // 점수 계산 & 반영 (FULL=덮어쓰기, QUICK=누적 + 동점 보정은 CharacterScoreService 내부 규칙대로)
+        // 1) 검증(저장 없음): 유효한 답 개수 및 완료 여부 계산
+        var checked = commandService.submit(req); // completed(), savedCount()
+
+        // 2) 점수 반영 (FULL=덮어쓰기, QUICK=가산; 동점 보정은 내부 규칙)
         characterScoreService.applySurvey(userId, req);
 
-        // completed 계산(선택): 해당 타입의 질문 개수와 요청 내 고유 질문ID 수 비교
-        int totalQuestions = surveyRepo.findByTypeOrderByIdAsc(req.type()).size();
-        int uniqueAnswered = (int) req.answers().stream()
-                .map(SubmitSurveyRequest.Answer::surveyId)
-                .distinct()
-                .count();
-        boolean completed = (uniqueAnswered == totalQuestions && totalQuestions > 0);
+        // 3) 최고 캐릭터 선정 & 회원.character 매핑
+        var selected = characterScoreService.mapTopCharacter(userId);
 
-        return new SubmitSurveyResponse(completed, req.answers().size());
+        // 4) 응답: 캐릭터 코드/이름/설명까지 포함
+        return SubmitSurveyResponse.of(
+                checked.completed(),
+                checked.savedCount(),
+                selected.getCode(),
+                selected.getName(),
+                selected.getDescription(),
+                selected.getTrait()
+
+        );
     }
-
     // =====================[ 내부 유틸 ]=====================
     private boolean looksLikeCharacterQuestion(Survey question, List<SurveyOption> options) {
         String title = Optional.ofNullable(question.getTitle()).orElse("");

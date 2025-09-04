@@ -1,7 +1,9 @@
 package com.qoormthon.empty_wallet.domain.character.service;
 
 import com.qoormthon.empty_wallet.domain.character.entity.CharCode;
+import com.qoormthon.empty_wallet.domain.character.entity.Character;
 import com.qoormthon.empty_wallet.domain.character.entity.Score;
+import com.qoormthon.empty_wallet.domain.character.repository.CharacterRepository;
 import com.qoormthon.empty_wallet.domain.character.repository.ScoreRepository;
 import com.qoormthon.empty_wallet.domain.survey.dto.request.SubmitSurveyRequest;
 import com.qoormthon.empty_wallet.domain.survey.entity.SurveyOption;
@@ -24,6 +26,11 @@ public class CharacterScoreService {
     private final ScoreRepository scoreRepo;
     private final UserRepository userRepo;
     private final CharacterResolverService characterResolver;
+    private final CharacterRepository characterRepo;
+
+    private static final List<CharCode> PRIORITY = List.of(
+            CharCode.CAF, CharCode.TAX, CharCode.FASH, CharCode.IMP, CharCode.SUB, CharCode.YOLO
+    );
 
     private static final long QUICK_Q1_SURVEY_ID = 11L;
 
@@ -141,6 +148,43 @@ public class CharacterScoreService {
         scoreRepo.save(bucket);
     }
 
+    @Transactional
+    public Character mapTopCharacter(Long userId) {
+        var user = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("USER_NOT_FOUND"));
+
+        var s = scoreRepo.findByUser(user)
+                .orElseThrow(() -> new IllegalStateException("SCORE_NOT_FOUND"));
+
+        long max = Math.max(Math.max(Math.max(s.getCaf(), s.getTax()), Math.max(s.getImp(), s.getSub())),
+                Math.max(s.getYolo(), s.getFash()));
+
+        CharCode chosen = null;
+        for (CharCode code : PRIORITY) {
+            long v = switch (code) {
+                case CAF -> s.getCaf();
+                case TAX -> s.getTax();
+                case IMP -> s.getImp();
+                case SUB -> s.getSub();
+                case YOLO -> s.getYolo();
+                case FASH -> s.getFash();
+            };
+            if (v == max) { chosen = code; break; }
+        }
+        if (chosen == null) chosen = CharCode.CAF;
+
+        final CharCode resolved = chosen;
+        final String code = resolved.name();
+
+        var character = characterRepo.findByCode(code)
+                .orElseThrow(() -> new IllegalStateException("CHARACTER_ROW_NOT_FOUND: " + code));
+
+        user.setCharacter(character);
+        userRepo.save(user);
+        return character;
+    }
+
+
     private void setAll(Score s, EnumMap<CharCode, Long> m) {
         s.addCaf(-s.getCaf());  s.addTax(-s.getTax());  s.addImp(-s.getImp());
         s.addSub(-s.getSub());  s.addYolo(-s.getYolo()); s.addFash(-s.getFash());
@@ -159,4 +203,6 @@ public class CharacterScoreService {
         s.addYolo(m.get(CharCode.YOLO));
         s.addFash(m.get(CharCode.FASH));
     }
+
+
 }

@@ -124,4 +124,7 @@ public class User {
     return (double) Math.round(days);
   }
 
+  public void setCharacter(Character character) {   // 서비스에서 호출할 메서드
+    this.character = character;
+  }
 }

@@ -31,7 +31,7 @@ public class SurveyCommandService {
         List<Survey> questions = surveyRepo.findByTypeOrderByIdAsc(req.type());
         if (questions.isEmpty()) {
             // 질문이 없으면 완료로 볼 수 없음
-            return new SubmitSurveyResponse(false, 0);
+            return SubmitSurveyResponse.of(false, 0, null, null, null, null);
         }
         Set<Long> requiredIds = questions.stream()
                 .map(Survey::getId)
@@ -92,7 +92,7 @@ public class SurveyCommandService {
         // 5) 완료 판정: 유효하게 답한 "서베이ID의 개수"가 전체 문항 수와 같으면 완료
         boolean completed = (answeredSurveyIds.size() == requiredCount);
 
-        return new SubmitSurveyResponse(completed, accepted);
+        return SubmitSurveyResponse.of(completed, accepted, null, null, null, null);
     }
 
     private static String key(Long surveyId, String type, String code) {
