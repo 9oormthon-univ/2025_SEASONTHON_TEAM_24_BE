@@ -27,4 +27,10 @@ public class SurveyOption {
 
     @Column(nullable = false)
     private Integer weight;
+
+    public Long getId() { return id; }
+    public Long getSurveyId() { return surveyId; }
+    public String getType() { return type; }
+    public String getCode() { return code; }
+    public Integer getWeight() { return weight; }
 }

@@ -1,4 +1,4 @@
-package com.qoormthon.empty_wallet.domain.user.repositroy;
+package com.qoormthon.empty_wallet.domain.user.repository;
 
 
 import com.qoormthon.empty_wallet.domain.user.entity.User;

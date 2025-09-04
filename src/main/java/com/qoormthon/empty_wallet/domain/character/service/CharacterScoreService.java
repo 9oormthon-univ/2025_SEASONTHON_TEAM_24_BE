@@ -1,0 +1,162 @@
+package com.qoormthon.empty_wallet.domain.character.service;
+
+import com.qoormthon.empty_wallet.domain.character.entity.CharCode;
+import com.qoormthon.empty_wallet.domain.character.entity.Score;
+import com.qoormthon.empty_wallet.domain.character.repository.ScoreRepository;
+import com.qoormthon.empty_wallet.domain.survey.dto.request.SubmitSurveyRequest;
+import com.qoormthon.empty_wallet.domain.survey.entity.SurveyOption;
+import com.qoormthon.empty_wallet.domain.survey.entity.SurveyType;
+import com.qoormthon.empty_wallet.domain.survey.repository.SurveyOptionRepository;
+import com.qoormthon.empty_wallet.domain.survey.service.CharacterResolverService;
+import com.qoormthon.empty_wallet.domain.user.entity.User;
+import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+@Service
+@RequiredArgsConstructor
+public class CharacterScoreService {
+
+    private final SurveyOptionRepository optionRepo;
+    private final ScoreRepository scoreRepo;
+    private final UserRepository userRepo;
+    private final CharacterResolverService characterResolver;
+
+    private static final long QUICK_Q1_SURVEY_ID = 11L;
+
+    @Transactional
+    public void applySurvey(Long userId, SubmitSurveyRequest req) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("USER_NOT_FOUND"));
+
+        final String userChar = characterResolver.resolve(null, userId); // ex) "CAF","YOLO",...
+
+        EnumMap<CharCode, Long> sum = new EnumMap<>(CharCode.class);
+        for (CharCode c : CharCode.values()) sum.put(c, 0L);
+
+        Set<Long> answeredSurveyIds = new HashSet<>();
+
+        for (SubmitSurveyRequest.Answer a : req.answers()) {
+
+            SurveyOption opt;
+            if (req.type() == SurveyType.QUICK) {
+                var candidates = optionRepo.findAllBySurveyIdAndType(a.surveyId(), a.optionType());
+                if (candidates.isEmpty()) throw new IllegalArgumentException("OPTION_NOT_FOUND");
+
+                opt = candidates.stream()
+                        .filter(o -> userChar != null
+                                && userChar.equalsIgnoreCase(Objects.toString(o.getCode(), "")))
+                        .findFirst()
+                        .orElseGet(() -> candidates.stream()
+                                .filter(o -> o.getCode() == null || o.getCode().isBlank())
+                                .findFirst()
+                                .orElse(candidates.get(0)));
+            } else {
+                opt = optionRepo.findBySurveyIdAndType(a.surveyId(), a.optionType())
+                        .orElseThrow(() -> new IllegalArgumentException("OPTION_NOT_FOUND"));
+            }
+
+            answeredSurveyIds.add(a.surveyId());
+
+            String rawCode = opt.getCode();
+
+            // QUICK Q1 보정
+            if (rawCode == null || rawCode.isBlank()) {
+                // code가 없는 일반 문항인데, QUICK Q1이면 사용자 캐릭터 버킷에 weight 가산
+                if (req.type() == SurveyType.QUICK && isQuickQ1(a.surveyId()) && userChar != null && !userChar.isBlank()) {
+                    int w = Optional.ofNullable(opt.getWeight()).orElse(0); // -2 ~ +2
+                    CharCode code = CharCode.of(userChar);
+                    sum.put(code, sum.get(code) + w);
+                }
+                // QUICK Q1이 아니거나 사용자 캐릭터를 모르면 스킵
+                continue;
+            }
+
+            // 다코드/단일코드 처리
+            String[] codes = Arrays.stream(rawCode.split(","))
+                    .map(String::trim).filter(s -> !s.isEmpty()).toArray(String[]::new);
+            if (codes.length == 0) continue;
+
+            int weight = Optional.ofNullable(opt.getWeight()).orElse(0);
+            int sign = weight < 0 ? -1 : 1;
+            int abs = Math.abs(weight);
+
+            if (codes.length == 1) {
+                CharCode code = CharCode.of(codes[0]);
+                sum.put(code, sum.get(code) + (long) sign * abs);
+            } else {
+                String digits = String.valueOf(abs);
+                if (digits.length() < codes.length) {
+                    digits = String.format("%0" + codes.length + "d", abs);
+                }
+                for (int i = 0; i < codes.length; i++) {
+                    CharCode code = CharCode.of(codes[i]);
+                    int d = (i < digits.length()) ? (digits.charAt(i) - '0') : 0;
+                    sum.put(code, sum.get(code) + (long) sign * d);
+                }
+            }
+        }
+
+        // 2) FULL 동점 보정
+        if (req.type() == SurveyType.FULL) {
+            long max = sum.values().stream().mapToLong(v -> v).max().orElse(0L);
+            int tie = 0;
+            for (long v : sum.values()) if (v == max) tie++;
+            if (tie >= 2) {
+                if (answeredSurveyIds.contains(7L)) {
+                    sum.put(CharCode.YOLO, sum.get(CharCode.YOLO) + 1);
+                }
+                if (answeredSurveyIds.contains(3L) || answeredSurveyIds.contains(9L)) {
+                    sum.put(CharCode.FASH, sum.get(CharCode.FASH) + 1);
+                    sum.put(CharCode.IMP,  sum.get(CharCode.IMP)  + 1);
+                }
+            }
+        }
+
+        // 3) 점수 반영 (FULL=덮어쓰기, QUICK=누적)
+        Score bucket = scoreRepo.findByUser(user)
+                .orElseGet(() -> scoreRepo.save(Score.of(user)));
+
+        if (req.type() == SurveyType.FULL) {
+            bucket.overwrite(
+                    sum.get(CharCode.CAF),
+                    sum.get(CharCode.TAX),
+                    sum.get(CharCode.IMP),
+                    sum.get(CharCode.SUB),
+                    sum.get(CharCode.YOLO),
+                    sum.get(CharCode.FASH)
+            );
+        } else { // QUICK
+            bucket.addCaf(sum.get(CharCode.CAF));
+            bucket.addTax(sum.get(CharCode.TAX));
+            bucket.addImp(sum.get(CharCode.IMP));
+            bucket.addSub(sum.get(CharCode.SUB));
+            bucket.addYolo(sum.get(CharCode.YOLO));
+            bucket.addFash(sum.get(CharCode.FASH));
+        }
+
+        scoreRepo.save(bucket);
+    }
+
+    private void setAll(Score s, EnumMap<CharCode, Long> m) {
+        s.addCaf(-s.getCaf());  s.addTax(-s.getTax());  s.addImp(-s.getImp());
+        s.addSub(-s.getSub());  s.addYolo(-s.getYolo()); s.addFash(-s.getFash());
+        addAll(s, m);
+    }
+
+    private boolean isQuickQ1(Long surveyId) {
+        return Objects.equals(surveyId, QUICK_Q1_SURVEY_ID);
+    }
+
+    private void addAll(Score s, EnumMap<CharCode, Long> m) {
+        s.addCaf(m.get(CharCode.CAF));
+        s.addTax(m.get(CharCode.TAX));
+        s.addImp(m.get(CharCode.IMP));
+        s.addSub(m.get(CharCode.SUB));
+        s.addYolo(m.get(CharCode.YOLO));
+        s.addFash(m.get(CharCode.FASH));
+    }
+}
