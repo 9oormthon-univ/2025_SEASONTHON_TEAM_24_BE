@@ -96,16 +96,16 @@ public interface SurveyDocs {
                             )
                     )
             )
-             // 필요하면 401도 같이 문서화 가능
-             ,@ApiResponse(
-                 responseCode = "401",
-                 description = "인증 실패(토큰 없음/만료/서명 오류 등)",
-                 content = @Content(
-                     mediaType = "application/json",
-                     schema = @Schema(implementation = ResponseDTO.class),
-                     examples = @ExampleObject(
-                         name = "TokenInvalid",
-                         value = """
+            // 필요하면 401도 같이 문서화 가능
+            ,@ApiResponse(
+            responseCode = "401",
+            description = "인증 실패(토큰 없음/만료/서명 오류 등)",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ResponseDTO.class),
+                    examples = @ExampleObject(
+                            name = "TokenInvalid",
+                            value = """
                          {
                            "localDateTime": "2025-09-04T00:17:22.7799144",
                            "statusCode": 401,
@@ -114,9 +114,9 @@ public interface SurveyDocs {
                            "data": null
                          }
                          """
-                     )
-                 )
-             )
+                    )
+            )
+    )
     })
     ResponseDTO<SurveyBundleResponse> getQuick(
             @Parameter(hidden = true) Long userId   // AuthenticationPrincipal로 주입됨(문서 비노출)
@@ -146,5 +146,6 @@ public interface SurveyDocs {
                 {"localDateTime":"2025-09-02T10:00:00","statusCode":200,"code":"SUCCESS",
                  "message":"설문 검증 성공","data":{"completed":false,"savedCount":7}}
               """)))
-    ResponseDTO<SubmitSurveyResponse> submit(SubmitSurveyRequest request);
+    ResponseDTO<SubmitSurveyResponse> submit(
+            @Parameter(hidden = true) Long userId, SubmitSurveyRequest request);
 }

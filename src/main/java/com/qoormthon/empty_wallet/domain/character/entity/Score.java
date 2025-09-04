@@ -17,7 +17,7 @@ public class Score {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "weight_id")
+    @Column(name = "score_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -41,8 +41,8 @@ public class Score {
     @Column(name = "yolo", nullable = false)
     private Long yolo = 0L;
 
-    @Column(name = "fas", nullable = false)
-    private Long fas = 0L;
+    @Column(name = "fash", nullable = false)
+    private Long fash = 0L;
 
     protected Score() { }
     private Score(User user) {
@@ -59,7 +59,7 @@ public class Score {
     public void addImp(long delta)  { this.imp  += delta; }
     public void addSub(long delta)  { this.sub  += delta; }
     public void addYolo(long delta) { this.yolo += delta; }
-    public void addFas(long delta)  { this.fas  += delta; }
+    public void addFash(long delta)  { this.fash  += delta; }
 
     // 필요 시 게터들
     public Long getId()   { return id; }
@@ -69,14 +69,14 @@ public class Score {
     public Long getImp()  { return imp; }
     public Long getSub()  { return sub; }
     public Long getYolo() { return yolo; }
-    public Long getFas()  { return fas; }
+    public Long getFash()  { return fash; }
 
-    public void overwrite(long caf, long tax, long imp, long sub, long yolo, long fas) {
+    public void overwrite(long caf, long tax, long imp, long sub, long yolo, long fash) {
         this.caf  = caf;
         this.tax  = tax;
         this.imp  = imp;
         this.sub  = sub;
         this.yolo = yolo;
-        this.fas  = fas;
+        this.fash  = fash;
     }
 }

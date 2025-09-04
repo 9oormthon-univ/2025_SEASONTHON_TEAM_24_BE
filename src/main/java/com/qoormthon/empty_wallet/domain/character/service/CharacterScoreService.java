@@ -2,11 +2,10 @@ package com.qoormthon.empty_wallet.domain.character.service;
 
 import com.qoormthon.empty_wallet.domain.character.entity.CharCode;
 import com.qoormthon.empty_wallet.domain.character.entity.Score;
-import com.qoormthon.empty_wallet.domain.character.entity.CharCode;
 import com.qoormthon.empty_wallet.domain.character.repository.ScoreRepository;
 import com.qoormthon.empty_wallet.domain.survey.dto.request.SubmitSurveyRequest;
-import com.qoormthon.empty_wallet.domain.survey.entity.SurveyType;
 import com.qoormthon.empty_wallet.domain.survey.entity.SurveyOption;
+import com.qoormthon.empty_wallet.domain.survey.entity.SurveyType;
 import com.qoormthon.empty_wallet.domain.survey.repository.SurveyOptionRepository;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
@@ -101,13 +100,13 @@ public class CharacterScoreService {
                 bucket.addImp(sum.get(CharCode.IMP));
                 bucket.addSub(sum.get(CharCode.SUB));
                 bucket.addYolo(sum.get(CharCode.YOLO));
-                bucket.addFas(sum.get(CharCode.FASH));
+                bucket.addFash(sum.get(CharCode.FASH));
                 scoreRepo.save(bucket);
     }
 
     private void setAll(Score s, EnumMap<CharCode, Long> m) {
         s.addCaf(-s.getCaf());  s.addTax(-s.getTax());  s.addImp(-s.getImp());
-        s.addSub(-s.getSub());  s.addYolo(-s.getYolo()); s.addFas(-s.getFas());
+        s.addSub(-s.getSub());  s.addYolo(-s.getYolo()); s.addFash(-s.getFash());
         addAll(s, m);
     }
 
@@ -117,6 +116,6 @@ public class CharacterScoreService {
         s.addImp(m.get(CharCode.IMP));
         s.addSub(m.get(CharCode.SUB));
         s.addYolo(m.get(CharCode.YOLO));
-        s.addFas(m.get(CharCode.FASH));
+        s.addFash(m.get(CharCode.FASH));
     }
 }
