@@ -53,7 +53,7 @@ public class Score {
         return new Score(user);
     }
 
-    // ---- 점수 가산/감산 유틸 ----
+    // 점수 가산/감산 유틸
     public void addCaf(long delta)  { this.caf  += delta; }
     public void addTax(long delta)  { this.tax  += delta; }
     public void addImp(long delta)  { this.imp  += delta; }
