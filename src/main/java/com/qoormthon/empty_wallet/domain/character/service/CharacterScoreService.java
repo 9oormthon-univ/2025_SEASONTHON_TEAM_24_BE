@@ -34,6 +34,7 @@ public class CharacterScoreService {
 
     private static final long QUICK_Q1_SURVEY_ID = 11L;
 
+
     @Transactional
     public void applySurvey(Long userId, SubmitSurveyRequest req) {
         User user = userRepo.findById(userId)
@@ -98,54 +99,40 @@ public class CharacterScoreService {
                 CharCode code = CharCode.of(codes[0]);
                 sum.put(code, sum.get(code) + (long) sign * abs);
             } else {
-                // 다코드 분배 로직
-                // 1) 자릿수 인코딩(예: 120, 111)이면 그걸 우선 적용
-                String digits = String.valueOf(abs);
-                boolean useDigits = digits.length() >= codes.length;
-
-                if (useDigits) {
-                    // 왼쪽이 상위 자릿수. 부족하면 기존처럼 0 패딩
-                    if (digits.length() < codes.length) {
-                        digits = String.format("%0" + codes.length + "d", abs);
-                    }
-                    for (int i = 0; i < codes.length; i++) {
-                        CharCode code = CharCode.of(codes[i]);
-                        int d = (i < digits.length()) ? (digits.charAt(i) - '0') : 0;
-                        if (d != 0) sum.put(code, sum.get(code) + (long) sign * d);
-                    }
-                } else {
-                    // 2) 자릿수 한 자리(abs < 10)인데 코드가 N개면 균등 분배
-                    int base = abs / codes.length;      // 몫
-                    int rem  = abs % codes.length;      // 나머지는 앞에서부터 +1
-                    for (int i = 0; i < codes.length; i++) {
-                        int add = base + (i < rem ? 1 : 0);
-                        if (add == 0) continue;
-                        CharCode code = CharCode.of(codes[i]);
-                        sum.put(code, sum.get(code) + (long) sign * add);
-                    }
-                }
+                applyMultiCode(sum, codes, weight);
             }
         }
 
         // 2) FULL 동점 보정 — "A"를 선택했을 때만 +1
         if (req.type() == SurveyType.FULL) {
             long max = sum.values().stream().mapToLong(v -> v).max().orElse(0L);
-            int tie = 0;
-            for (long v : sum.values()) if (v == max) tie++;
-            if (tie >= 2) {
-                // Q7 A -> YOLO +1
-                if ("A".equalsIgnoreCase(picked.get(7L))) {
+
+            // 최고점 동점 집합
+            Set<CharCode> leaders = new HashSet<>();
+            for (var e : sum.entrySet()) {
+                if (e.getValue() == max) leaders.add(e.getKey());
+            }
+
+            if (leaders.size() >= 2) { // 진짜 '최고점' 동점일 때만 보정
+                String pick3 = picked.get(3L);
+                String pick7 = picked.get(7L);
+                String pick9 = picked.get(9L);
+
+                // Q7=A → YOLO +1 (단, YOLO가 leaders 안에 있을 때만)
+                if ("A".equalsIgnoreCase(pick7) && leaders.contains(CharCode.YOLO)) {
                     sum.put(CharCode.YOLO, sum.get(CharCode.YOLO) + 1);
                 }
-                // Q3 A -> FASH/IMP +1
-                if ("A".equalsIgnoreCase(picked.get(3L))) {
-                    sum.put(CharCode.FASH, sum.get(CharCode.FASH) + 1);
-                    sum.put(CharCode.IMP,  sum.get(CharCode.IMP)  + 1);
+
+                // Q3=A → FASH/IMP 각각 +1 (단, 각 코드가 leaders 안에 있을 때만)
+                if ("A".equalsIgnoreCase(pick3)) {
+                    if (leaders.contains(CharCode.FASH)) sum.put(CharCode.FASH, sum.get(CharCode.FASH) + 1);
+                    if (leaders.contains(CharCode.IMP))  sum.put(CharCode.IMP,  sum.get(CharCode.IMP)  + 1);
                 }
-                // Q9 A -> FASH/IMP +1
-                if ("A".equalsIgnoreCase(picked.get(9L))) {
-                    sum.put(CharCode.FASH, sum.get(CharCode.FASH) + 1);
-                    sum.put(CharCode.IMP,  sum.get(CharCode.IMP)  + 1);
+
+                // Q9=A → FASH/IMP 각각 +1 (단, 각 코드가 leaders 안에 있을 때만)
+                if ("A".equalsIgnoreCase(pick9)) {
+                    if (leaders.contains(CharCode.FASH)) sum.put(CharCode.FASH, sum.get(CharCode.FASH) + 1);
+                    if (leaders.contains(CharCode.IMP))  sum.put(CharCode.IMP,  sum.get(CharCode.IMP)  + 1);
                 }
             }
         }
@@ -211,6 +198,21 @@ public class CharacterScoreService {
         return character;
     }
 
+    // --- [A] 다코드 weight 분배: 항상 자릿수 매핑 + 왼쪽 0패딩 ---
+    private void applyMultiCode(EnumMap<CharCode, Long> sum, String[] codes, int weight) {
+        int sign = Integer.signum(weight);
+        int abs  = Math.abs(weight);
+
+        // codes 길이에 맞춰 왼쪽 0 패딩 (예: abs=12, codes=3개 -> "012")
+        String digits = String.format("%0" + codes.length + "d", abs);
+
+        for (int i = 0; i < codes.length; i++) {
+            int d = digits.charAt(i) - '0';
+            if (d == 0) continue;
+            CharCode code = CharCode.of(codes[i]);
+            sum.put(code, sum.get(code) + (long) sign * d);
+        }
+    }
 
     private void setAll(Score s, EnumMap<CharCode, Long> m) {
         s.addCaf(-s.getCaf());  s.addTax(-s.getTax());  s.addImp(-s.getImp());
