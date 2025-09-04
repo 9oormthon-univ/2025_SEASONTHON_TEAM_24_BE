@@ -1,8 +1,6 @@
 package com.qoormthon.empty_wallet.domain.user.entity;
 
 import com.qoormthon.empty_wallet.domain.character.entity.Character;
-import com.qoormthon.empty_wallet.domain.user.dto.Gender;
-import com.qoormthon.empty_wallet.domain.user.dto.SocialProvider;
 import com.qoormthon.empty_wallet.global.security.core.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +16,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.cache.internal.NaturalIdCacheKey;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,6 +24,7 @@ import org.hibernate.cache.internal.NaturalIdCacheKey;
 public class User {
   @Id
   @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+  @Column(name = "user_id")
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -121,8 +119,9 @@ public class User {
    * @return 목표 금액까지 걸리는 예상 일수 (소수점 첫째 자리까지 표시)
    */
   public double getDaysToGoal() {
-    double days = ((double)this.targetPrice/(this.monthlyPay-monthlyCost))*30;
-    return Math.round(days * 10.0) / 10.0;
+    double savingMoney = (this.monthlyPay-this.monthlyCost)/10.0; // 하루 저축 금액
+    double days = ((double)this.targetPrice/(savingMoney))*30;
+    return (double) Math.round(days);
   }
 
 }
