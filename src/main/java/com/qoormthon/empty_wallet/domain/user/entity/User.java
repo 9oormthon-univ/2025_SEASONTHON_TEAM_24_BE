@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 public class User {
   @Id
   @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+  @Column(name = "user_id")
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)

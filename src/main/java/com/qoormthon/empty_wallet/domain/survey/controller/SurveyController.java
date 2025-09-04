@@ -9,10 +9,13 @@ import com.qoormthon.empty_wallet.domain.survey.service.CharacterResolverService
 import com.qoormthon.empty_wallet.domain.survey.service.SurveyCommandService;
 import com.qoormthon.empty_wallet.domain.survey.service.SurveyQueryService;
 import com.qoormthon.empty_wallet.global.common.dto.response.ResponseDTO;
+import com.qoormthon.empty_wallet.global.security.core.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.apache.commons.lang3.StringUtils.firstNonBlank;
 
@@ -42,12 +45,20 @@ public class SurveyController implements SurveyDocs {
         return ResponseDTO.of(body, "FULL 설문 조회 성공");
     }
 
+    // 수정 (권장)
     @GetMapping("/quick")
+    @Override
     public ResponseDTO<SurveyBundleResponse> getQuick(
             @AuthenticationPrincipal(expression = "id") Long userId
     ) {
-        // 프론트 파라미터/헤더는 받지 않음. 서버가 DB로만 결정
-        String code = characterResolver.resolve(null, userId);  // 내부적으로 userId로만 조회
+        // 혹시 보안 설정이 잘못되어 비인증 접근이 들어오면 방어
+        if (userId == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        // 프론트에서 character 안 받으니 param/header는 null로, 유저ID로 캐릭터 코드 결정
+        String code = characterResolver.resolve(null, userId);
+
         var body = queryService.getSurveyBundle(SurveyType.QUICK, code);
         return ResponseDTO.of(body, "QUICK 설문 조회 성공");
     }
