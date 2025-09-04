@@ -10,7 +10,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class CharacterResolverService {
-    private static final Set<String> ALLOWED = Set.of("CAF","TAX","FAS","SUB","IMP","YOLO");
+    private static final Set<String> ALLOWED = Set.of("CAF","TAX","FASH","SUB","IMP","YOLO");
     private final UserRepository userRepository;
 
     public String resolve(String paramOrHeader, Long userIdOrNull) {
