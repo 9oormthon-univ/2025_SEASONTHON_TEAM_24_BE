@@ -45,7 +45,6 @@ public class Score {
     private Long fas = 0L;
 
     protected Score() { }
-
     private Score(User user) {
         this.user = user;
     }
@@ -71,4 +70,13 @@ public class Score {
     public Long getSub()  { return sub; }
     public Long getYolo() { return yolo; }
     public Long getFas()  { return fas; }
+
+    public void overwrite(long caf, long tax, long imp, long sub, long yolo, long fas) {
+        this.caf  = caf;
+        this.tax  = tax;
+        this.imp  = imp;
+        this.sub  = sub;
+        this.yolo = yolo;
+        this.fas  = fas;
+    }
 }

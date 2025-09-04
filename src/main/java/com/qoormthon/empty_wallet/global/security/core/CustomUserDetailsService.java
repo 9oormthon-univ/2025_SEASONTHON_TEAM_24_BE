@@ -2,7 +2,7 @@ package com.qoormthon.empty_wallet.global.security.core;
 
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.exception.UserNotFoundException;
-import com.qoormthon.empty_wallet.domain.user.repositroy.UserRepository;
+import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import com.qoormthon.empty_wallet.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

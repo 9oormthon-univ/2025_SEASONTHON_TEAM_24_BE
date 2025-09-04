@@ -1,7 +1,7 @@
 package com.qoormthon.empty_wallet.domain.character.repository;
 
 
-import com.qoormthon.empty_wallet.domain.survey.entity.Score;
+import com.qoormthon.empty_wallet.domain.character.entity.Score;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,6 +1,6 @@
 package com.qoormthon.empty_wallet.domain.survey.service;
 
-import com.qoormthon.empty_wallet.domain.user.repositroy.UserRepository;
+import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
