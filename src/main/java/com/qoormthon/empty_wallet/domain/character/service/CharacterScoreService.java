@@ -44,6 +44,8 @@ public class CharacterScoreService {
         EnumMap<CharCode, Long> sum = new EnumMap<>(CharCode.class);
         for (CharCode c : CharCode.values()) sum.put(c, 0L);
 
+        // 어떤 문항에서 무슨 보기 선택했는지 추적 (동점 보정 조건에 필요)
+        Map<Long, String> picked = new HashMap<>();
         Set<Long> answeredSurveyIds = new HashSet<>();
 
         for (SubmitSurveyRequest.Answer a : req.answers()) {
@@ -67,6 +69,7 @@ public class CharacterScoreService {
             }
 
             answeredSurveyIds.add(a.surveyId());
+            picked.put(a.surveyId(), a.optionType()); // ← 선택 보기 저장
 
             String rawCode = opt.getCode();
 
@@ -88,35 +91,59 @@ public class CharacterScoreService {
             if (codes.length == 0) continue;
 
             int weight = Optional.ofNullable(opt.getWeight()).orElse(0);
-            int sign = weight < 0 ? -1 : 1;
+            int sign = Integer.signum(weight);
             int abs = Math.abs(weight);
 
             if (codes.length == 1) {
                 CharCode code = CharCode.of(codes[0]);
                 sum.put(code, sum.get(code) + (long) sign * abs);
             } else {
+                // 다코드 분배 로직
+                // 1) 자릿수 인코딩(예: 120, 111)이면 그걸 우선 적용
                 String digits = String.valueOf(abs);
-                if (digits.length() < codes.length) {
-                    digits = String.format("%0" + codes.length + "d", abs);
-                }
-                for (int i = 0; i < codes.length; i++) {
-                    CharCode code = CharCode.of(codes[i]);
-                    int d = (i < digits.length()) ? (digits.charAt(i) - '0') : 0;
-                    sum.put(code, sum.get(code) + (long) sign * d);
+                boolean useDigits = digits.length() >= codes.length;
+
+                if (useDigits) {
+                    // 왼쪽이 상위 자릿수. 부족하면 기존처럼 0 패딩
+                    if (digits.length() < codes.length) {
+                        digits = String.format("%0" + codes.length + "d", abs);
+                    }
+                    for (int i = 0; i < codes.length; i++) {
+                        CharCode code = CharCode.of(codes[i]);
+                        int d = (i < digits.length()) ? (digits.charAt(i) - '0') : 0;
+                        if (d != 0) sum.put(code, sum.get(code) + (long) sign * d);
+                    }
+                } else {
+                    // 2) 자릿수 한 자리(abs < 10)인데 코드가 N개면 균등 분배
+                    int base = abs / codes.length;      // 몫
+                    int rem  = abs % codes.length;      // 나머지는 앞에서부터 +1
+                    for (int i = 0; i < codes.length; i++) {
+                        int add = base + (i < rem ? 1 : 0);
+                        if (add == 0) continue;
+                        CharCode code = CharCode.of(codes[i]);
+                        sum.put(code, sum.get(code) + (long) sign * add);
+                    }
                 }
             }
         }
 
-        // 2) FULL 동점 보정
+        // 2) FULL 동점 보정 — "A"를 선택했을 때만 +1
         if (req.type() == SurveyType.FULL) {
             long max = sum.values().stream().mapToLong(v -> v).max().orElse(0L);
             int tie = 0;
             for (long v : sum.values()) if (v == max) tie++;
             if (tie >= 2) {
-                if (answeredSurveyIds.contains(7L)) {
+                // Q7 A -> YOLO +1
+                if ("A".equalsIgnoreCase(picked.get(7L))) {
                     sum.put(CharCode.YOLO, sum.get(CharCode.YOLO) + 1);
                 }
-                if (answeredSurveyIds.contains(3L) || answeredSurveyIds.contains(9L)) {
+                // Q3 A -> FASH/IMP +1
+                if ("A".equalsIgnoreCase(picked.get(3L))) {
+                    sum.put(CharCode.FASH, sum.get(CharCode.FASH) + 1);
+                    sum.put(CharCode.IMP,  sum.get(CharCode.IMP)  + 1);
+                }
+                // Q9 A -> FASH/IMP +1
+                if ("A".equalsIgnoreCase(picked.get(9L))) {
                     sum.put(CharCode.FASH, sum.get(CharCode.FASH) + 1);
                     sum.put(CharCode.IMP,  sum.get(CharCode.IMP)  + 1);
                 }
