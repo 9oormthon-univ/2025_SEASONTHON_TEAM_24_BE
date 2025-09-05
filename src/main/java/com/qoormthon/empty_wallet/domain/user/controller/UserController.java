@@ -7,7 +7,9 @@ import com.qoormthon.empty_wallet.domain.user.service.UserService;
 import com.qoormthon.empty_wallet.global.common.dto.response.ResponseDTO;
 import com.qoormthon.empty_wallet.global.exception.ErrorCode;
 import com.qoormthon.empty_wallet.global.exception.InvalidValueException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.net.http.HttpRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
@@ -37,8 +39,8 @@ public class UserController implements UserDocs {
    */
   @Override
   @PostMapping("/required-days")
-  public ResponseDTO<RequiredDaysResponse> calculateRequiredDays(@RequestBody @Valid RequiredDaysRequest request,
-      BindingResult bindingResult) {
+  public ResponseDTO<RequiredDaysResponse> calculateRequiredDays(@RequestBody @Valid RequiredDaysRequest requiredDaysRequest,
+      BindingResult bindingResult, HttpServletRequest httpServletRequest) {
 
     if (bindingResult.hasErrors()) {
       log.error("입력 값이 비어있거나 올바르지 않습니다.");
@@ -47,7 +49,7 @@ public class UserController implements UserDocs {
 
     // 목표 금액까지 남은 일 수 입니다.
     double days = userService
-        .getDaysToGoal(request.getTargetPrice(), request.getMonthlyPay(), request.getMonthlyCost());
+        .getDaysToGoal(requiredDaysRequest, httpServletRequest);
 
     RequiredDaysResponse response = RequiredDaysResponse.builder()
         .days(days)

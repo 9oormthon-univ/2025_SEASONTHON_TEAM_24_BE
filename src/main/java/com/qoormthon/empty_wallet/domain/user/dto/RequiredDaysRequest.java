@@ -18,9 +18,9 @@ public class RequiredDaysRequest {
   @NotNull
   private Long monthlyPay;
 
-  //월 고정지출
-  @NotNull
-  private Long monthlyCost;
+//  //월 고정지출
+//  @NotNull
+//  private Long monthlyCost;
 
   //목표금액
   @NotNull
