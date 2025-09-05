@@ -22,6 +22,12 @@ public class StrategyDataDTO {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Integer monthlySaving;
 
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private Double dailyReducedDays;
+
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private Double monthlyReducedDays;
+
   private String howToStep;
   private String word;
 

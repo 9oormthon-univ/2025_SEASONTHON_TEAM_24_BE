@@ -1,6 +1,7 @@
 package com.qoormthon.empty_wallet.domain.user.entity;
 
 import com.qoormthon.empty_wallet.domain.character.entity.Character;
+import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.global.security.core.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -122,6 +123,12 @@ public class User {
     double savingMoney = (this.monthlyPay-this.monthlyCost)/10.0; // 하루 저축 금액
     double days = ((double)this.targetPrice/(savingMoney))*30;
     return (double) Math.round(days);
+  }
+
+  public void setDaysToGoal(RequiredDaysRequest requiredDaysRequest) {
+    this.monthlyCost = null;
+    this.monthlyPay = requiredDaysRequest.getMonthlyPay();
+    this.targetPrice = requiredDaysRequest.getTargetPrice();
   }
 
   public void setCharacter(Character character) {   // 서비스에서 호출할 메서드
