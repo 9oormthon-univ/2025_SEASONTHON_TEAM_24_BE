@@ -64,6 +64,7 @@ public class StrategyService {
 
       return filteredStrategies.subList(start, end);
     } catch (Exception e) {
+      log.error(e.getMessage());
       throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -125,6 +126,7 @@ public class StrategyService {
 
 
     } catch (Exception e) {
+      log.error(e.getMessage());
       throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
   }
