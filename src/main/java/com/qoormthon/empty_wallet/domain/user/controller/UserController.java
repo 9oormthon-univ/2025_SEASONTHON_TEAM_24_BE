@@ -47,7 +47,7 @@ public class UserController implements UserDocs {
 
     // 목표 금액까지 남은 일 수 입니다.
     double days = userService
-        .getDaysToGoal(request.getTargetPrice(), request.getMonthlyPay(), request.getMonthlyCost());
+        .getDaysToGoal(request.getTargetPrice(), request.getMonthlyPay());
 
     RequiredDaysResponse response = RequiredDaysResponse.builder()
         .days(days)
