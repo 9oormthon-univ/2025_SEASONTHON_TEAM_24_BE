@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,8 +57,8 @@ public interface UserDocs {
           )
       )
   )
-  @Operation(summary = "목표 금액까지 남은 일수 계산 api 입니다.", description = "엑세스 토큰은 필요하지 않습니다. / (monthlyPay(원 단위):월 수익), (monthlyCost(원 단위):월 고정지출), (targetPrice(원 단위):목표금액) 정보를 넣어주세요.")
+  @Operation(summary = "목표 금액까지 남은 일수 계산 api 입니다.", description = "엑세스 토큰은 필요하지 않습니다. / (monthlyPay(원 단위):월 수익), (targetPrice(원 단위):목표금액) 정보를 넣어주세요.")
   ResponseDTO<RequiredDaysResponse> calculateRequiredDays(RequiredDaysRequest request,
-      BindingResult bindingResult);
+      BindingResult bindingResult, HttpServletRequest httpServletRequest);
 
 }
