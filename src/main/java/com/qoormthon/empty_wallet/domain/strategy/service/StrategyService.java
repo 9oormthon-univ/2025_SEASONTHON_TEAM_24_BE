@@ -37,6 +37,11 @@ public class StrategyService {
         throw new NotFoundInfoException(ErrorCode.USER_NOT_FOUND);
       }
 
+      if(user.getMonthlyPay() == null) {
+        log.error("유저의 월 수익 정보가 없습니다.");
+        throw new InvalidValueException(ErrorCode.INVALID_INPUT_VALUE);
+      }
+
 
       List<StrategyDataDTO> filteredStrategies = filteredStrategies(type);
 
@@ -92,6 +97,11 @@ public class StrategyService {
       if(character == null) {
         log.error("유저에게 지정된 캐릭터가 없습니다.");
         throw new NotFoundInfoException(ErrorCode.NOT_FOUND);
+      }
+
+      if(user.getMonthlyPay() == null) {
+        log.error("유저의 월 수익 정보가 없습니다.");
+        throw new InvalidValueException(ErrorCode.INVALID_INPUT_VALUE);
       }
 
       // 캐릭터 타입 조회(ex.CAF..)
