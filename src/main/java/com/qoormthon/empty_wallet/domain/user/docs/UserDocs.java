@@ -26,12 +26,12 @@ public interface UserDocs {
               value =
                   """
                       {
-                        "localDateTime": "2025-09-01T23:26:53.599769",
+                        "localDateTime": "2025-09-05T23:08:34.810011023",
                         "statusCode": 200,
                         "code": "SUCCESS",
                         "message": "계산에 성공하였습니다.",
                         "data": {
-                          "days": 7.3
+                          "days": 300
                         }
                       }
                   """
