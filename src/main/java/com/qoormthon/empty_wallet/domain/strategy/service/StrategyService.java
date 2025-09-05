@@ -24,6 +24,12 @@ public class StrategyService {
       int start = page * size;
       int end = Math.min((start + size), filteredStrategies.size());
 
+      // 한 달 실천 절약액
+      for(StrategyDataDTO strategy : filteredStrategies) {
+        strategy.setMonthlySaving(strategy.getDailySaving()*30);
+      }
+
+
       return filteredStrategies.subList(start, end);
     } catch (Exception e) {
       throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);

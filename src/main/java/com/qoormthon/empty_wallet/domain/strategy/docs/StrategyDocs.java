@@ -15,7 +15,7 @@ public interface StrategyDocs {
 
   @ApiResponse(
       responseCode = "200",
-      description = "전략 목록 조회 성공",
+      description = "전략 목록 조회 성공 / ",
       content = @Content(
           mediaType = "application/json",
           examples = @ExampleObject(
