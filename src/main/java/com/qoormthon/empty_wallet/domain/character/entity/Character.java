@@ -22,26 +22,31 @@ public class Character {
   @Column
   private String code;
 
-  @Column
+  @Column(nullable = false)
   private String name;
 
-  @Column
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String description;
 
+  @Column(nullable = false, length = 255)
+  private String trait;
+
   @Builder
-  private Character(Long characterId, String code, String name, String description) {
+  private Character(Long characterId, String code, String name, String description, String trait) {
     this.characterId = characterId;
     this.code = code;
     this.name = name;
     this.description = description;
+    this.trait = trait;
   }
 
-  public static Character of(String code, String name, String description) {
+  public static Character of(String code, String name, String description, String trait) {
     return Character.builder()
         .characterId(null)
         .code(code)
         .name(name)
         .description(description)
+        .trait(trait)
         .build();
   }
 

@@ -1,6 +1,7 @@
 package com.qoormthon.empty_wallet.domain.user.entity;
 
 import com.qoormthon.empty_wallet.domain.character.entity.Character;
+import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.global.security.core.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,6 +25,7 @@ import lombok.NoArgsConstructor;
 public class User {
   @Id
   @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+  @Column(name = "user_id")
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -123,4 +125,13 @@ public class User {
     return (double) Math.round(days);
   }
 
+  public void setDaysToGoal(RequiredDaysRequest requiredDaysRequest) {
+    this.monthlyCost = null;
+    this.monthlyPay = requiredDaysRequest.getMonthlyPay();
+    this.targetPrice = requiredDaysRequest.getTargetPrice();
+  }
+
+  public void setCharacter(Character character) {   // 서비스에서 호출할 메서드
+    this.character = character;
+  }
 }

@@ -1,7 +1,10 @@
 package com.qoormthon.empty_wallet.domain.survey.service;
 
+import com.qoormthon.empty_wallet.domain.character.service.CharacterScoreService;
+import com.qoormthon.empty_wallet.domain.survey.dto.request.SubmitSurveyRequest;
 import com.qoormthon.empty_wallet.domain.survey.dto.response.OptionResponse;
 import com.qoormthon.empty_wallet.domain.survey.dto.response.QuestionResponse;
+import com.qoormthon.empty_wallet.domain.survey.dto.response.SubmitSurveyResponse;
 import com.qoormthon.empty_wallet.domain.survey.dto.response.SurveyBundleResponse;
 import com.qoormthon.empty_wallet.domain.survey.entity.Survey;
 import com.qoormthon.empty_wallet.domain.survey.entity.SurveyOption;
@@ -17,14 +20,18 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SurveyQueryService {
+public class SurveyService {
 
     private static final Set<String> CHARACTER_CODES =
-            Set.of("CAF","TAX","FAS","SUB","IMP","YOLO");
+            Set.of("CAF","TAX","FASH","SUB","IMP","YOLO");
 
     private final SurveyRepository surveyRepo;
+    private final SurveyCommandService commandService; // 검증 로직
     private final SurveyOptionRepository optionRepo;
 
+    private final CharacterScoreService characterScoreService;
+
+    // =====================[ 조회 ]=====================
     @Transactional(readOnly = true)
     public SurveyBundleResponse getSurveyBundle(SurveyType type) {
         return getSurveyBundle(type, null);
@@ -50,11 +57,11 @@ public class SurveyQueryService {
         for (Survey q : questions) {
             List<SurveyOption> raw = byQuestion.getOrDefault(q.getId(), List.of());
 
-            // 캐릭터 문항(Q3)만 필터링 대상으로 간주
+            // QUICK에서 캐릭터 문항(Q3)만 필터
             boolean isCharacterQuestion = (type == SurveyType.QUICK) && looksLikeCharacterQuestion(q, raw);
 
-            // 캐릭터 문항(Q3)인데 캐릭터 코드가 없으면 이 문항은 제외 (Q1/Q2만 내려감)
             if (isCharacterQuestion && (characterCodeOrNull == null || characterCodeOrNull.isBlank())) {
+                // Q3인데 캐릭터코드 미지정 → 스킵 (Q1/Q2만 내려감)
                 continue;
             }
 
@@ -64,10 +71,9 @@ public class SurveyQueryService {
                 filtered = raw.stream()
                         .filter(o -> target.equalsIgnoreCase(safeUpper(o.getCode())))
                         .toList();
-                if (filtered.isEmpty()) continue; // 방어: 매칭 없으면 이 문항 스킵
+                if (filtered.isEmpty()) continue;
             }
 
-            // Q1, Q2 등은 code가 있어도 무시하고 전부 노출 (그대로 filtered=raw)
             List<OptionResponse> opts = filtered.stream()
                     .map(o -> new OptionResponse(o.getType(), o.getTitle()))
                     .toList();
@@ -78,10 +84,33 @@ public class SurveyQueryService {
         return new SurveyBundleResponse(type, qDtos.size(), qDtos);
     }
 
-    // 판별: 타이틀에 '캐릭터' 포함 + code가 캐릭터코드 집합에 속하며 2종 이상 존재
+    // =====================[ 제출: 응답 미저장, 점수만 반영 ]=====================
+    @Transactional
+    public SubmitSurveyResponse submit(Long userId, SubmitSurveyRequest req) {
+        // 1) 검증(저장 없음): 유효한 답 개수 및 완료 여부 계산
+        var checked = commandService.submit(req); // completed(), savedCount()
+
+        // 2) 점수 반영 (FULL=덮어쓰기, QUICK=가산; 동점 보정은 내부 규칙)
+        characterScoreService.applySurvey(userId, req);
+
+        // 3) 최고 캐릭터 선정 & 회원.character 매핑
+        var selected = characterScoreService.mapTopCharacter(userId);
+
+        // 4) 응답: 캐릭터 코드/이름/설명까지 포함
+        return SubmitSurveyResponse.of(
+                checked.completed(),
+                checked.savedCount(),
+                selected.getCode(),
+                selected.getName(),
+                selected.getDescription(),
+                selected.getTrait()
+
+        );
+    }
+    // =====================[ 내부 유틸 ]=====================
     private boolean looksLikeCharacterQuestion(Survey question, List<SurveyOption> options) {
         String title = Optional.ofNullable(question.getTitle()).orElse("");
-        if (!title.contains("캐릭터")) return false; // ← Q2는 여기서 걸러짐
+        if (!title.contains("캐릭터")) return false;
 
         Set<String> codes = options.stream()
                 .map(SurveyOption::getCode)
@@ -89,8 +118,7 @@ public class SurveyQueryService {
                 .filter(c -> c != null && !c.isBlank())
                 .collect(Collectors.toSet());
 
-        if (codes.size() < 2) return false; // 한두 개 실수 입력은 무시
-        // 전부 허용 코드여야 Q3로 인정
+        if (codes.size() < 2) return false;
         return codes.stream().allMatch(CHARACTER_CODES::contains);
     }
 
