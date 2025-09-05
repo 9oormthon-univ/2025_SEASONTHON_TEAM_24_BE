@@ -49,7 +49,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
   @Override
   protected void doFilterInternal(HttpServletRequest request,
-      HttpServletResponse response, FilterChain filterChain
+                                  HttpServletResponse response, FilterChain filterChain
   ) throws ServletException, IOException {
 
     try {
@@ -68,8 +68,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
       //토큰이 존재하고 유효한 경우를 확인합니다.
       if (jwtTokenProvider.validateToken(accessToken) && accessToken != null) {
         log.info(
-            "[" + TraceIdHolder.get() + "]" + "[" + request.getRemoteAddr() + "]:" + "[" + method
-                + ":" + url + "]" + "(allowed)");
+                "[" + TraceIdHolder.get() + "]" + "[" + request.getRemoteAddr() + "]:" + "[" + method
+                        + ":" + url + "]" + "(allowed)");
 
         //토큰에서 사용자 조회 후 인증 객체를 생성합니다.(유저가 존재하지 않을 경우 CustomUserNotFoundException 발생)
         UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(accessToken);
@@ -78,23 +78,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
       } else {
         log.info(
-            "[" + TraceIdHolder.get() + "]" + "[" + request.getRemoteAddr() + "]:" + "[" + method
-                + ":" + url + "]" + "(denied)");
+                "[" + TraceIdHolder.get() + "]" + "[" + request.getRemoteAddr() + "]:" + "[" + method
+                        + ":" + url + "]" + "(denied)");
       }
 
       filterChain.doFilter(request, response);
 
     } catch (UserNotFoundException e) {
       log.info(
-          "[" + TraceIdHolder.get() + "]" + "(해당 사용자를 찾을 수 없습니다.)");
+              "[" + TraceIdHolder.get() + "]" + "(해당 사용자를 찾을 수 없습니다.)");
 
       // 유저가 존재하지 않을 경우 반환되는 json 응답.
       String userNotFoundExceptionResponse = objectMapper
-          .writeValueAsString(ResponseDTO.of(ErrorCode.USER_NOT_FOUND));
+              .writeValueAsString(ResponseDTO.of(ErrorCode.USER_NOT_FOUND));
       response.setStatus(ErrorCode.USER_NOT_FOUND.getHttpStatus().value());
       response.setContentType("application/json");
       response.getWriter().write(userNotFoundExceptionResponse);
-      
+
     } finally {
       // 요청이 끝난 후 TraceIdHolder를 정리합니다.
       TraceIdHolder.clear();
@@ -133,9 +133,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     UserDetails userDetails = customUserDetailsService.loadUserById(userId);
 
     return new UsernamePasswordAuthenticationToken(
-        userDetails,
-        null,
-        userDetails.getAuthorities()
+            userDetails,
+            null,
+            userDetails.getAuthorities()
     );
   }
 

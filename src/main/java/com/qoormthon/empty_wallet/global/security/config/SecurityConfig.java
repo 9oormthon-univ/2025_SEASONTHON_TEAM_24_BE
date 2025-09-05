@@ -9,6 +9,7 @@ import com.qoormthon.empty_wallet.global.security.jwt.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -56,8 +57,14 @@ public class SecurityConfig {
                 "/api/**",
                 "/oauth2/**",
                 "/login/oauth2/code/**",
-                "/api/auth/**"
+                "/api/auth/**",
+                "/api/surveys/**"
             ).permitAll()
+            // 풀서베이 조회는 공개
+//            .requestMatchers(HttpMethod.GET, "/api/surveys/full").permitAll()
+//            // 퀵서베이 조회/제출은 보호 (비로그인 401)
+//            .requestMatchers(HttpMethod.GET,  "/api/surveys/quick").authenticated()
+//            .requestMatchers(HttpMethod.POST, "/api/surveys/responses").authenticated()
             .anyRequest().authenticated())
         .exceptionHandling(e -> e
             //인증 실패 시 응답 핸들링
