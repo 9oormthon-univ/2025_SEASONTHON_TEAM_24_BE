@@ -114,16 +114,25 @@ public interface StrategyDocs {
 
   @ApiResponse(
       responseCode = "200",
-      description = "전략 목록 조회 성공",
+      description = "도전 시작하기 성공 시",
       content = @Content(
           mediaType = "application/json",
           examples = @ExampleObject(
               value =
                   """
+                      {
+                        "localDateTime": "2025-09-06T17:35:58.96475",
+                        "statusCode": 200,
+                        "code": "SUCCESS",
+                        "message": null,
+                        "data": "도전 시작에 성공하였습니다."
+                      }
                   """
           )
       )
   )
   @Operation(summary = "도전 시작하기 api 입니다.", description = "도전 시작하기 버튼을 누르면 호출되는 api 입니다.")
   public ResponseDTO<String> startStrategy(Long strategyId, HttpServletRequest httpServletRequest);
+
+
 }

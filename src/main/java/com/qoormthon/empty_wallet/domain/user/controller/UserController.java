@@ -3,16 +3,20 @@ package com.qoormthon.empty_wallet.domain.user.controller;
 import com.qoormthon.empty_wallet.domain.user.docs.UserDocs;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysResponse;
+import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import com.qoormthon.empty_wallet.domain.user.service.UserService;
 import com.qoormthon.empty_wallet.global.common.dto.response.ResponseDTO;
 import com.qoormthon.empty_wallet.global.exception.ErrorCode;
+import com.qoormthon.empty_wallet.global.exception.InternalServerException;
 import com.qoormthon.empty_wallet.global.exception.InvalidValueException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.http.HttpRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController implements UserDocs {
 
   private final UserService userService;
+  private final UserRepository userRepository;
 
   /**
    * 목표 금액까지 필요한 일 수를 계산합니다.
@@ -57,6 +62,23 @@ public class UserController implements UserDocs {
 
     return ResponseDTO.of(response, "계산에 성공하였습니다.");
   }
+
+  @DeleteMapping
+  @Transactional
+  @Override
+  public ResponseDTO<String> deleteAllUser() {
+
+    try {
+      userRepository.deleteAll();
+      return ResponseDTO.of((String)null, "삭제에 성공하였습니다!");
+
+    } catch (Exception e) {
+      log.error("삭제중 오류 발생 : ", e.getMessage());
+      throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+  }
+
 
 
 }
