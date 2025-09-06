@@ -141,12 +141,15 @@ public interface UserDocs {
               value =
                   """
                       {
-                        "localDateTime": "2025-09-07T05:12:26.339776",
+                        "localDateTime": "2025-09-07T05:34:27.428159",
                         "statusCode": 200,
                         "code": "SUCCESS",
                         "message": "조회에 성공하였습니다.",
                         "data": {
-                          "name": "홍준표"
+                          "name": "홍준표",
+                          "monthlyPay": 100,
+                          "targetPrice": 1000,
+                          "days": 3000
                         }
                       }
                   """
