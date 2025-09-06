@@ -232,6 +232,4 @@ public class CharacterScoreService {
         s.addYolo(m.get(CharCode.YOLO));
         s.addFash(m.get(CharCode.FASH));
     }
-
-
 }
