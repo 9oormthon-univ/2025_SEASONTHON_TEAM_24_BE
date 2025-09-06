@@ -31,7 +31,7 @@ public class StrategyController implements StrategyDocs {
   @PostMapping("/{strategyId}/start")
   public ResponseDTO<String> startStrategy(@PathVariable Long strategyId, HttpServletRequest httpServletRequest) {
     strategyService.startStrategy(strategyId, httpServletRequest);
-    return ResponseDTO.of("전략 시작에 성공하였습니다.", null);
+    return ResponseDTO.of((String)null, "전략 시작에 성공하였습니다.");
   }
 
   @Override
