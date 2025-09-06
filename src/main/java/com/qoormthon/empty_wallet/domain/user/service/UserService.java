@@ -3,6 +3,7 @@ package com.qoormthon.empty_wallet.domain.user.service;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysAndGoalPayResponse;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysResponse;
+import com.qoormthon.empty_wallet.domain.user.dto.UserResponse;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import com.qoormthon.empty_wallet.global.exception.ErrorCode;
@@ -97,9 +98,35 @@ public class UserService {
         .build();
 
     return response;
+  }
+
+  @Transactional
+  public UserResponse getUserInfo(HttpServletRequest httpServletRequest) {
+    String token = jwtTokenProvider.extractToken(httpServletRequest);
+    Long userId = jwtTokenProvider.getUserIdFromToken(token);
+    User user = userRepository.findById(userId).orElse(null);
+
+    if(user == null) {
+      log.error("유저가 존재하지 않습니다. : " + userId);
+      throw new NotFoundInfoException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    Long monthlyPay = user.getMonthlyPay();
+    Long targetPrice = user.getTargetPrice();
+
+    double savingMoney = (monthlyPay)/10.0; // 한달 저축 금액
+    double days = ((double)targetPrice/(savingMoney))*30;
+    double roundedDays = Math.round(days); // 소수점 반올림하도록 수정
 
 
+    UserResponse userResponse = UserResponse.builder()
+        .name(user.getName())
+        .monthlyPay(user.getMonthlyPay() == null ? 0 : user.getMonthlyPay())
+        .targetPrice(user.getTargetPrice() == null ? 0 : user.getTargetPrice())
+        .days(roundedDays)
+        .build();
 
+    return userResponse;
   }
 
 }

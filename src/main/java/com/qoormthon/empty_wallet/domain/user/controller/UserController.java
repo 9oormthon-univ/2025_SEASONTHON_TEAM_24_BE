@@ -7,6 +7,7 @@ import com.qoormthon.empty_wallet.domain.user.docs.UserDocs;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysAndGoalPayResponse;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysResponse;
+import com.qoormthon.empty_wallet.domain.user.dto.UserResponse;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import com.qoormthon.empty_wallet.domain.user.service.UserService;
@@ -86,17 +87,7 @@ public class UserController implements UserDocs {
   @Override
   @GetMapping("/me")
   public ResponseDTO<?> getUserInfo(HttpServletRequest httpServletRequest) {
-    String token = jwtTokenProvider.extractToken(httpServletRequest);
-    Long userId = jwtTokenProvider.getUserIdFromToken(token);
-    User user = userRepository.findById(userId).orElse(null);
-
-    if(user == null) {
-      throw new InvalidValueException(ErrorCode.USER_NOT_FOUND);
-    }
-
-    Map<String, Object> response = new HashMap<>();
-    response.put("name", user.getName());
-
+    UserResponse response = userService.getUserInfo(httpServletRequest);
     return ResponseDTO.of(response, "조회에 성공하였습니다.");
   }
 
