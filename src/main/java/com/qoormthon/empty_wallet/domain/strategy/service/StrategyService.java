@@ -2,6 +2,8 @@ package com.qoormthon.empty_wallet.domain.strategy.service;
 
 import com.qoormthon.empty_wallet.domain.character.entity.Character;
 import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO;
+import com.qoormthon.empty_wallet.domain.strategy.entity.StrategyStatus;
+import com.qoormthon.empty_wallet.domain.strategy.repository.StrategyActiveRepository;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import com.qoormthon.empty_wallet.global.exception.ErrorCode;
@@ -24,6 +26,7 @@ public class StrategyService {
   private final List<StrategyDataDTO> strategies;
   private final JwtTokenProvider jwtTokenProvider;
   private final UserRepository userRepository;
+  private final StrategyActiveRepository strategyActiveRepository;
 
   public List<StrategyDataDTO> getStrategiesByType(String type, int page, int size, HttpServletRequest httpServletRequest) {
     try {
@@ -65,6 +68,8 @@ public class StrategyService {
         strategy.setDailyReducedDays(dailyReducedDays);
         strategy.setMonthlyReducedDays(monthlyReducedDays);
       }
+
+
 
 
       return filteredStrategies.subList(start, end);
