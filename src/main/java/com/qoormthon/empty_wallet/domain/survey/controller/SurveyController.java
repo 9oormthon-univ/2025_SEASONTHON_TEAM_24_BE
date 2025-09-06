@@ -11,6 +11,7 @@ import com.qoormthon.empty_wallet.domain.survey.service.SurveyService;
 import com.qoormthon.empty_wallet.global.common.dto.response.ResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import org.springframework.web.server.ResponseStatusException;
  *
  * 공통 응답 포맷(ResponseDTO)으로 래핑해 내려준다.
  */
+@Slf4j
 @RestController
 @RequestMapping("/api/surveys")
 @RequiredArgsConstructor
@@ -67,6 +69,7 @@ public class SurveyController implements SurveyDocs {
                 @AuthenticationPrincipal(expression = "id") Long userId,  // ← userId → id
                 @Valid @RequestBody SubmitSurveyRequest request
         ) {
+            log.info("[SURVEY] principal id={}", userId);
             if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
             var res = surveyService.submit(userId, request);
             return ResponseDTO.of(res, "설문 검증 성공");

@@ -11,6 +11,8 @@ import com.qoormthon.empty_wallet.domain.survey.entity.SurveyOption;
 import com.qoormthon.empty_wallet.domain.survey.entity.SurveyType;
 import com.qoormthon.empty_wallet.domain.survey.repository.SurveyOptionRepository;
 import com.qoormthon.empty_wallet.domain.survey.repository.SurveyRepository;
+import com.qoormthon.empty_wallet.domain.user.entity.User;
+import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,11 +27,23 @@ public class SurveyService {
     private static final Set<String> CHARACTER_CODES =
             Set.of("CAF","TAX","FASH","SUB","IMP","YOLO");
 
+    // 캐릭터별 월 추가 저축액(원)
+    private static final Map<String, Long> MONTHLY_SAVINGS_BY_CHAR = Map.of(
+            "CAF", 103_600L,
+            "TAX", 420_000L,
+            "IMP", 336_000L,
+            "SUB",  70_000L,
+            "YOLO", 840_000L,
+            "FASH", 700_000L
+    );
+
     private final SurveyRepository surveyRepo;
     private final SurveyCommandService commandService; // 검증 로직
     private final SurveyOptionRepository optionRepo;
 
     private final CharacterScoreService characterScoreService;
+
+    private final UserRepository userRepository;
 
     // =====================[ 조회 ]=====================
     @Transactional(readOnly = true)
@@ -96,6 +110,12 @@ public class SurveyService {
         // 3) 최고 캐릭터 선정 & 회원.character 매핑
         var selected = characterScoreService.mapTopCharacter(userId);
 
+        // FULL에서만 savings 계산
+        Integer savingsDays = null;
+        if (req.type() == SurveyType.FULL) {
+            savingsDays = calculateSavingsDays(userId, selected.getCode());
+        }
+
         // 4) 응답: 캐릭터 코드/이름/설명까지 포함
         return SubmitSurveyResponse.of(
                 checked.completed(),
@@ -103,7 +123,8 @@ public class SurveyService {
                 selected.getCode(),
                 selected.getName(),
                 selected.getDescription(),
-                selected.getTrait()
+                selected.getTrait(),
+                savingsDays
 
         );
     }
@@ -120,6 +141,37 @@ public class SurveyService {
 
         if (codes.size() < 2) return false;
         return codes.stream().allMatch(CHARACTER_CODES::contains);
+    }
+
+    private Integer calculateSavingsDays(Long userId, String characterCode) {
+        // 유저 조회
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return 0;
+
+        long monthlyPay = Optional.ofNullable(user.getMonthlyPay()).orElse(0L);
+        Long targetPrice = safeTargetPrice(user); // = user.getTargetPrice()
+        if (targetPrice == null || targetPrice <= 0) return 0;
+
+        // 기본 월저축액 = 월수익의 10%
+        long baseMonthlySave = Math.max(0L, Math.round(monthlyPay * 0.10));
+        if (baseMonthlySave <= 0) return 0;
+
+        long extra = Math.max(0L, MONTHLY_SAVINGS_BY_CHAR.getOrDefault(characterCode, 0L));
+        long withStrategy = baseMonthlySave + extra;
+        if (withStrategy <= 0) return 0;
+
+        long monthsBaseline = (long) Math.ceil((double) targetPrice / baseMonthlySave);
+        long monthsWithStrat = (long) Math.ceil((double) targetPrice / withStrategy);
+
+        long monthsSaved = Math.max(0L, monthsBaseline - monthsWithStrat);
+        long daysSaved = monthsSaved * 28; // 28일 가정
+
+        return (int) Math.min(Integer.MAX_VALUE, daysSaved);
+    }
+
+    private Long safeTargetPrice(User user) {
+        // target_price(목표금액) 필드의 게터가 getTargetPrice()라면 그대로 사용
+        return user.getTargetPrice();
     }
 
     private String safeUpper(String s) {
