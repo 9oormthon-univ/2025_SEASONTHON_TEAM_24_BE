@@ -28,6 +28,8 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        jdbc:
+          batch_size: 300
         dialect: org.hibernate.dialect.MySQLDialect
 
   security:
