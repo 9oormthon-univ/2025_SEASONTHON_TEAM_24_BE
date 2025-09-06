@@ -7,15 +7,19 @@ import com.qoormthon.empty_wallet.domain.user.docs.UserDocs;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysAndGoalPayResponse;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysResponse;
+import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import com.qoormthon.empty_wallet.domain.user.service.UserService;
 import com.qoormthon.empty_wallet.global.common.dto.response.ResponseDTO;
 import com.qoormthon.empty_wallet.global.exception.ErrorCode;
 import com.qoormthon.empty_wallet.global.exception.InternalServerException;
 import com.qoormthon.empty_wallet.global.exception.InvalidValueException;
+import com.qoormthon.empty_wallet.global.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.http.HttpRequest;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +46,7 @@ public class UserController implements UserDocs {
   private final UserRepository userRepository;
   private final ScoreRepository scoreRepository;
   private final StrategyActiveRepository strategyActiveRepository;
+  private final JwtTokenProvider jwtTokenProvider;
 
   /**
    * 목표 금액까지 필요한 일 수를 계산합니다.
@@ -77,6 +82,24 @@ public class UserController implements UserDocs {
     RequiredDaysAndGoalPayResponse response = userService.calculateRequiredDaysAndGoalpay(httpServletRequest);
     return ResponseDTO.of(response, "조회에 성공하였습니다.");
   }
+
+  @Override
+  @GetMapping("/me")
+  public ResponseDTO<?> getUserInfo(HttpServletRequest httpServletRequest) {
+    String token = jwtTokenProvider.extractToken(httpServletRequest);
+    Long userId = jwtTokenProvider.getUserIdFromToken(token);
+    User user = userRepository.findById(userId).orElse(null);
+
+    if(user == null) {
+      throw new InvalidValueException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("name", user.getName());
+
+    return ResponseDTO.of(response, "조회에 성공하였습니다.");
+  }
+
 
   @DeleteMapping
   @Transactional
