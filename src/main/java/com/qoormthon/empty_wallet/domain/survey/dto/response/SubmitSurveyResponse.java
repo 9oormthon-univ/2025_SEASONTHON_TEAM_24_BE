@@ -6,10 +6,11 @@ public record SubmitSurveyResponse(
         String code,
         String name,
         String desc,
-        String trait
+        String trait,
+        Integer savings
 ){
     public static SubmitSurveyResponse of(boolean completed, int savedCount,
-                                          String code, String name, String desc, String trait) {
-        return new SubmitSurveyResponse(completed, savedCount, code, name, desc, trait);
+                                          String code, String name, String desc, String trait, Integer savings) {
+        return new SubmitSurveyResponse(completed, savedCount, code, name, desc, trait, savings);
     }
 }
