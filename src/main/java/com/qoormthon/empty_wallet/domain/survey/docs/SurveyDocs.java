@@ -230,6 +230,52 @@ public interface SurveyDocs {
                             )
                     )
             ),
+
+            // 400: 검증 실패 (답변 수 불일치 등)
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "검증 실패 (예: 답변 개수 불일치)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(
+                                    name = "AnswerCountMismatch",
+                                    value = """
+                                {
+                                  "localDateTime": "2025-09-06T23:27:34.7463527",
+                                  "statusCode": 400,
+                                  "code": "ANSWER_COUNT_MISMATCH",
+                                  "message": "답변 개수가 질문 개수와 일치하지 않습니다 (필요개수=10, 제출개수=2)",
+                                  "data": {
+                                    "detail": "필요개수=10, 제출개수=2"
+                                  }
+                                }
+                                """
+                            )
+                    )
+            ),
+
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "인증 실패(토큰 없음/만료/서명 오류 등)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseDTO.class),
+                            examples = @ExampleObject(
+                                    name = "TokenInvalid",
+                                    value = """
+                                    {
+                                      "localDateTime": "2025-09-04T00:17:22.7799144",
+                                      "statusCode": 401,
+                                      "code": "TOKEN_INVALID",
+                                      "message": "유효하지 않은 토큰입니다.",
+                                      "data": null
+                                    }
+                                    """
+                            )
+                    )
+            ),
+
             @ApiResponse(
                     responseCode = "404",
                     description = "토큰 자체는 수신되었으나 해당 사용자 없음",
@@ -250,26 +296,7 @@ public interface SurveyDocs {
                             )
                     )
             ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "인증 실패(토큰 없음/만료/서명 오류 등)",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseDTO.class),
-                            examples = @ExampleObject(
-                                    name = "TokenInvalid",
-                                    value = """
-                                    {
-                                      "localDateTime": "2025-09-04T00:17:22.7799144",
-                                      "statusCode": 401,
-                                      "code": "TOKEN_INVALID",
-                                      "message": "유효하지 않은 토큰입니다.",
-                                      "data": null
-                                    }
-                                    """
-                            )
-                    )
-            )
+
     })
     ResponseDTO<SubmitSurveyResponse> submit(
             @Parameter(hidden = true) Long userId,

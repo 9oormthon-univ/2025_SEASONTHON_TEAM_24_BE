@@ -32,7 +32,7 @@ public class SurveyService {
     private static final Map<String, Long> MONTHLY_SAVINGS_BY_CHAR = Map.of(
             "CAF", 103_600L,
             "TAX", 420_000L,
-            "IMP", 336_000L,
+            "IMP", 420_000L,
             "SUB",  70_000L,
             "YOLO", 840_000L,
             "FASH", 700_000L
@@ -130,7 +130,7 @@ public class SurveyService {
 
         );
     }
-    // =====================[ 내부 유틸 ]=====================
+    // 유틸 함수
     private boolean looksLikeCharacterQuestion(Survey question, List<SurveyOption> options) {
         String title = Optional.ofNullable(question.getTitle()).orElse("");
         if (!title.contains("캐릭터")) return false;

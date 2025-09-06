@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.reactive.result.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.Map;
+
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -49,6 +51,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<ResponseDTO> internalServerException(InternalServerException e) {
     return ResponseEntity.status(e.getErrorCode().getHttpStatus())
         .body(ResponseDTO.of(e.getErrorCode()));
+  }
+
+  @ExceptionHandler(SurveyValidationException.class)
+  public ResponseEntity<ResponseDTO<Map<String, Object>>> handleSurveyValidation(SurveyValidationException ex) {
+    ErrorCode ec = ex.getErrorCode();
+    ResponseDTO<Map<String, Object>> body = ResponseDTO.of(ec, Map.of("detail", ex.getDetail()));
+    body.setMessage(ex.getMessage());
+    return ResponseEntity.status(ec.getHttpStatus()).body(body);
   }
 
 }

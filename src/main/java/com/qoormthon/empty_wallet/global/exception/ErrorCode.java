@@ -56,6 +56,7 @@ public enum ErrorCode {
     USER_WITHDRAWN(HttpStatus.NOT_FOUND, "USER_WITHDRAWN", "탈퇴한 회원입니다."),
     PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PROVIDER_NOT_FOUND", "소셜 provider를 찾을 수 없습니다."),
     NOT_FOUND_MONTHLY_PAY(HttpStatus.BAD_REQUEST, "NOT_FOUND_MONTHLY_PAY", "월 수익 정보가 없습니다. 먼저 월 수익을 입력해주세요."),
+    ANSWER_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "ANSWER_COUNT_MISMATCH", "답변 개수가 질문 개수와 일치하지 않습니다"),
 
     // 405 Method Not Allowed
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED", "허용되지 않은 HTTP 메서드입니다."),

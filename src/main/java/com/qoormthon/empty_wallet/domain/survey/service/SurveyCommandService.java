@@ -7,6 +7,9 @@ import com.qoormthon.empty_wallet.domain.survey.entity.SurveyOption;
 import com.qoormthon.empty_wallet.domain.survey.entity.SurveyType;
 import com.qoormthon.empty_wallet.domain.survey.repository.SurveyOptionRepository;
 import com.qoormthon.empty_wallet.domain.survey.repository.SurveyRepository;
+import com.qoormthon.empty_wallet.global.exception.CustomException;
+import com.qoormthon.empty_wallet.global.exception.ErrorCode;
+import com.qoormthon.empty_wallet.global.exception.SurveyValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,27 @@ public class SurveyCommandService {
                 .map(Survey::getId)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         int requiredCount = requiredIds.size();
+
+
+        // 1-1) 요청에서 현재 타입에 해당하는 "유효한 surveyId"만 뽑아 중복 제거
+        Set<Long> providedIds = new LinkedHashSet<>();
+        if (req.answers() != null) {
+            for (SubmitSurveyRequest.Answer a : req.answers()) {
+                if (a == null || a.surveyId() == null) continue;
+                if (requiredIds.contains(a.surveyId())) {
+                    providedIds.add(a.surveyId());
+                }
+            }
+        }
+        int providedCount = providedIds.size();
+
+        // 1-2) 개수 불일치 시 바로 에러
+        if (providedCount != requiredCount) {
+            throw new SurveyValidationException(
+                    ErrorCode.ANSWER_COUNT_MISMATCH,
+                    "필요개수=" + requiredCount + ", 제출개수=" + providedCount
+            );
+        }
 
         // 2) 모든 옵션을 한 번에 로딩해 매핑 테이블 구성 (N+1 방지)
         List<SurveyOption> allOptions = optionRepo.findBySurveyIdInOrderBySurveyIdAscTypeAsc(requiredIds);
