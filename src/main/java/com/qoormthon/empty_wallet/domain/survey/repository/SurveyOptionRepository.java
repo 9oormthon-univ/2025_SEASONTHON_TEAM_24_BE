@@ -14,9 +14,6 @@ public interface SurveyOptionRepository extends JpaRepository<SurveyOption, Long
     List<SurveyOption> findBySurveyIdInOrderBySurveyIdAscTypeAsc(Collection<Long> surveyIds);
     Optional<SurveyOption> findBySurveyIdAndType(Long surveyId, String type);
 
-    // 제출 매핑(단순형): (surveyId, type)로 옵션 특정 — QUICK Q1/Q2 등
+    // 제출 매핑 : (surveyId, type)로 옵션 특정 — QUICK Q1/Q2 등
     List<SurveyOption> findAllBySurveyIdAndType(Long surveyId, String type);
-
-    // 제출 매핑(정밀형): (surveyId, type, code)로 옵션 특정 — QUICK Q3 같은 케이스
-    Optional<SurveyOption> findBySurveyIdAndTypeAndCode(Long surveyId, String type, String code);
 }

@@ -44,7 +44,7 @@ public class SurveyController implements SurveyDocs {
         return ResponseDTO.of(body, "FULL 설문 조회 성공");
     }
 
-    // 수정 (권장)
+    // 퀵 서베이 번들 조회
     @GetMapping("/quick")
     @Override
     public ResponseDTO<SurveyBundleResponse> getQuick(

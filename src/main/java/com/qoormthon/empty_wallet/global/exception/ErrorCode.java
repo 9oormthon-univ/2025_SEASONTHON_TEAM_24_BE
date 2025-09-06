@@ -12,6 +12,7 @@ public enum ErrorCode {
     VALIDATION_FAILED(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", "요청 데이터가 유효하지 않습니다."),
     DUPLICATED_USER(HttpStatus.BAD_REQUEST, "DUPLICATED_USER", "이미 등록된 사용자입니다."),
     DUPLICATED_NICKNAME(HttpStatus.BAD_REQUEST, "DUPLICATED_NICKNAME", "이미 등록된 닉네임입니다."),
+    ANSWER_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "ANSWER_COUNT_MISMATCH", "답변 개수가 질문 개수와 일치하지 않습니다"),
 
     // 400 Bad Request 파일 관련 에러코드
     UNSUPPORTED_FILE_FORMAT(HttpStatus.BAD_REQUEST, "UNSUPPORTED_FILE_FORMAT", "지원하지 않는 파일 형식입니다."),
@@ -37,7 +38,6 @@ public enum ErrorCode {
     PASSWORD_EMOJI_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "PASSWORD_EMOJI_NOT_ALLOWED", "이모티콘은 사용할 수 없습니다."),
     PASSWORD_KOREAN_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "PASSWORD_KOREAN_NOT_ALLOWED", "한글은 포함될 수 없습니다."),
 
-
     // 401 Unauthorized
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "아이디 또는 비밀번호가 올바르지 않습니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "UNAUTHORIZED", "인증이 필요합니다."),
@@ -56,7 +56,9 @@ public enum ErrorCode {
     USER_WITHDRAWN(HttpStatus.NOT_FOUND, "USER_WITHDRAWN", "탈퇴한 회원입니다."),
     PROVIDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "PROVIDER_NOT_FOUND", "소셜 provider를 찾을 수 없습니다."),
     NOT_FOUND_MONTHLY_PAY(HttpStatus.BAD_REQUEST, "NOT_FOUND_MONTHLY_PAY", "월 수익 정보가 없습니다. 먼저 월 수익을 입력해주세요."),
-    ANSWER_COUNT_MISMATCH(HttpStatus.BAD_REQUEST, "ANSWER_COUNT_MISMATCH", "답변 개수가 질문 개수와 일치하지 않습니다"),
+    SCORE_NOT_FOUND(HttpStatus.NOT_FOUND, "SCORE_NOT_FOUND", "해당 사용자의 점수 정보를 찾을 수 없습니다."),
+    CHARACTER_ROW_NOT_FOUND(HttpStatus.NOT_FOUND, "CHARACTER_ROW_NOT_FOUND", "해당 캐릭터 정보를 찾을 수 없습니다."),
+    OPTION_NOT_FOUND(HttpStatus.NOT_FOUND, "OPTION_NOT_FOUND", "선택한 옵션이 존재하지 않습니다."),
 
     // 405 Method Not Allowed
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "METHOD_NOT_ALLOWED", "허용되지 않은 HTTP 메서드입니다."),

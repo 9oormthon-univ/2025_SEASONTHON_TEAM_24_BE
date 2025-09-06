@@ -12,6 +12,8 @@ import com.qoormthon.empty_wallet.domain.survey.repository.SurveyOptionRepositor
 import com.qoormthon.empty_wallet.domain.survey.service.CharacterResolverService;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
+import com.qoormthon.empty_wallet.global.exception.ErrorCode;
+import com.qoormthon.empty_wallet.global.exception.NotFoundInfoException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +40,7 @@ public class CharacterScoreService {
     @Transactional
     public void applySurvey(Long userId, SubmitSurveyRequest req) {
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("USER_NOT_FOUND"));
+                .orElseThrow(() -> new NotFoundInfoException(ErrorCode.USER_NOT_FOUND));
 
         final String userChar = characterResolver.resolve(null, userId); // ex) "CAF","YOLO",...
 
@@ -54,7 +56,9 @@ public class CharacterScoreService {
             SurveyOption opt;
             if (req.type() == SurveyType.QUICK) {
                 List<SurveyOption> candidates = optionRepo.findAllBySurveyIdAndType(a.surveyId(), a.optionType());
-                if (candidates.isEmpty()) throw new IllegalArgumentException("OPTION_NOT_FOUND");
+                if (candidates.isEmpty()) {
+                    throw new NotFoundInfoException(ErrorCode.OPTION_NOT_FOUND);
+                }
 
                 opt = candidates.stream()
                         .filter(o -> userChar != null
@@ -66,7 +70,7 @@ public class CharacterScoreService {
                                 .orElse(candidates.get(0)));
             } else {
                 opt = optionRepo.findBySurveyIdAndType(a.surveyId(), a.optionType())
-                        .orElseThrow(() -> new IllegalArgumentException("OPTION_NOT_FOUND"));
+                        .orElseThrow(() -> new NotFoundInfoException(ErrorCode.OPTION_NOT_FOUND));
             }
 
             answeredSurveyIds.add(a.surveyId());
@@ -165,10 +169,10 @@ public class CharacterScoreService {
     @Transactional
     public Character mapTopCharacter(Long userId) {
         User  user = userRepo.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("USER_NOT_FOUND"));
+                .orElseThrow(() -> new NotFoundInfoException(ErrorCode.USER_NOT_FOUND));
 
         Score s = scoreRepo.findByUser(user)
-                .orElseThrow(() -> new IllegalStateException("SCORE_NOT_FOUND"));
+                .orElseThrow(() -> new NotFoundInfoException(ErrorCode.SCORE_NOT_FOUND));
 
         long max = Math.max(Math.max(Math.max(s.getCaf(), s.getTax()), Math.max(s.getImp(), s.getSub())),
                 Math.max(s.getYolo(), s.getFash()));
@@ -191,7 +195,7 @@ public class CharacterScoreService {
         final String code = resolved.name();
 
         Character character = characterRepo.findByCode(code)
-                .orElseThrow(() -> new IllegalStateException("CHARACTER_ROW_NOT_FOUND: " + code));
+                .orElseThrow(() -> new NotFoundInfoException(ErrorCode.CHARACTER_ROW_NOT_FOUND));
 
         user.setCharacter(character);
         userRepo.save(user);
@@ -214,22 +218,7 @@ public class CharacterScoreService {
         }
     }
 
-    private void setAll(Score s, EnumMap<CharCode, Long> m) {
-        s.addCaf(-s.getCaf());  s.addTax(-s.getTax());  s.addImp(-s.getImp());
-        s.addSub(-s.getSub());  s.addYolo(-s.getYolo()); s.addFash(-s.getFash());
-        addAll(s, m);
-    }
-
     private boolean isQuickQ1(Long surveyId) {
         return Objects.equals(surveyId, QUICK_Q1_SURVEY_ID);
-    }
-
-    private void addAll(Score s, EnumMap<CharCode, Long> m) {
-        s.addCaf(m.get(CharCode.CAF));
-        s.addTax(m.get(CharCode.TAX));
-        s.addImp(m.get(CharCode.IMP));
-        s.addSub(m.get(CharCode.SUB));
-        s.addYolo(m.get(CharCode.YOLO));
-        s.addFash(m.get(CharCode.FASH));
     }
 }
