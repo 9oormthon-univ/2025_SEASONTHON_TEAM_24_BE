@@ -51,7 +51,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         // 신규 사용자라면 회원가입 페이지로 리다이렉트 (회원가입 로그인 여부에 따라 파라미터 추가)
 //        response.sendRedirect("https://2025-seasonthon-team-24-fe.vercel.app?status=" + (isNewUser ? "signup" : "login") + "&refreshToken=" + refreshToken);
-        response.sendRedirect("http://localhost:5174?status=" + (isNewUser ? "signup" : "login") + "&refreshToken=" + refreshToken);
+        response.sendRedirect("http://localhost:5173?status=" + (isNewUser ? "signup" : "login") + "&refreshToken=" + refreshToken);
 
     }
 }
