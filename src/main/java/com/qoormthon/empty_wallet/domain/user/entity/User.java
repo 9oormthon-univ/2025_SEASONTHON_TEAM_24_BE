@@ -95,16 +95,16 @@ public class User {
    * @param authType 소셜로그인 종류 입니다. (KAKAO, GOOGLE)
    * @return 생성된 User 객체
    */
-  public static User createStandardUser(String socialEmail, SocialProvider authType) {
+  public static User createStandardUser(String socialEmail, String name, SocialProvider authType) {
     return User.builder()
         .id(null)
         .socialEmail(socialEmail)
         .authType(authType)
+        .name(name)
         .role(Role.ROLE_USER)
 
         .character(null)
         .nickname(null)
-        .name(null)
         .age(null)
         .gender(null)
         .birthDate(null)

@@ -83,7 +83,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
 
         // 회원 정보가 DB에 존재하는지 확인
-      User userExam = User.createStandardUser(socialEmail, SocialProvider.fromString(provider));
+      User userExam = User.createStandardUser(socialEmail, nickname, SocialProvider.fromString(provider));
       log.info("userExam = " + userExam.getAuthType());
 
 
@@ -93,6 +93,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     isNewUser.set(true);
                     return userRepository.save(User.createStandardUser(
                         socialEmail
+                        , nickname
                         ,SocialProvider.fromString(provider)
                     ));
                 });
