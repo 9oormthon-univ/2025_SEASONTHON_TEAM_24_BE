@@ -13,9 +13,12 @@ import com.qoormthon.empty_wallet.global.exception.InvalidValueException;
 import com.qoormthon.empty_wallet.global.exception.NotFoundInfoException;
 import com.qoormthon.empty_wallet.global.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class StrategyService {
   private final JwtTokenProvider jwtTokenProvider;
   private final UserRepository userRepository;
   private final StrategyActiveRepository strategyActiveRepository;
+  private final AbstractJackson2HttpMessageConverter abstractJackson2HttpMessageConverter;
 
   @Transactional
   public List<StrategyDataDTO> getStrategiesByType(String type, int page, int size, HttpServletRequest httpServletRequest) {
@@ -74,7 +78,7 @@ public class StrategyService {
       // 전략 상태 설정
       for(StrategyDataDTO strategy : filteredStrategies) {
 
-        StrategyActive strategyActive =  strategyActiveRepository.findById(strategy.getStrategyId()).orElse(null);
+        StrategyActive strategyActive =  strategyActiveRepository.findByStrategyId(strategy.getStrategyId()).orElse(null);
 
         // 해당 전략을 '도전 시작하기' 누르지 않은 경우
         if(strategyActive == null) {
@@ -95,6 +99,60 @@ public class StrategyService {
       log.error(e.getMessage());
       throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Transactional
+  public List<StrategyDataDTO> getStrategiesByrunning(HttpServletRequest httpServletRequest) {
+
+    try {
+      String accessToken = jwtTokenProvider.extractToken(httpServletRequest);
+      Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+      User user = userRepository.findById(userId).orElse(null);
+
+      if(user == null) {
+        log.error("사용자 정보가 존재하지 않습니다.");
+        throw new NotFoundInfoException(ErrorCode.USER_NOT_FOUND);
+      }
+
+      List<StrategyDataDTO> response = new ArrayList<>();
+      List<StrategyActive> strategyActives = strategyActiveRepository.findByStatus(StrategyStatus.RUNNING);
+
+
+      // status 지정 (running)
+      for(StrategyActive strategyActive : strategyActives) {
+        StrategyDataDTO strategyDataDTO = filteredStrategies(strategyActive.getStrategyId());
+        strategyDataDTO.setStatus(StrategyStatus.RUNNING);
+        response.add(strategyDataDTO);
+      }
+
+      // 한 달 실천 절약액
+      for(StrategyDataDTO strategy : response) {
+        strategy.setMonthlySaving(strategy.getDailySaving()*30);
+      }
+
+      // 하루/한달 실천 시 차감 일 수
+      for(StrategyDataDTO strategy : response) {
+        double monthlySavingMoney = user.getMonthlyPay()/10.0;
+        Long targetPrice = user.getTargetPrice();
+        Integer dailyIncrease = strategy.getDailySaving();
+
+        double dailyReducedDays = Math.round(calculateDailyReducedDays(monthlySavingMoney, targetPrice, dailyIncrease) * 10.0) / 10.0;
+        double monthlyReducedDays = Math.round(calculateMonthlyReducedDays(monthlySavingMoney, targetPrice, dailyIncrease) * 10.0) / 10.0;
+
+        strategy.setDailyReducedDays(dailyReducedDays);
+        strategy.setMonthlyReducedDays(monthlyReducedDays);
+      }
+
+
+
+      return response;
+
+
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
   }
 
   @Transactional
@@ -144,7 +202,7 @@ public class StrategyService {
       // 전략 상태 설정
       for(StrategyDataDTO strategy : filteredStrategies) {
 
-        StrategyActive strategyActive =  strategyActiveRepository.findById(strategy.getStrategyId()).orElse(null);
+        StrategyActive strategyActive = strategyActiveRepository.findByStrategyId(strategy.getStrategyId()).orElse(null);
 
         // 해당 전략을 '도전 시작하기' 누르지 않은 경우
         if(strategyActive == null) {
@@ -156,7 +214,7 @@ public class StrategyService {
           strategy.setStatus(StrategyStatus.DONE);
         }
 
-        else if(strategyActive.getStatus().equals(StrategyStatus.RUNNING)) {
+        else {
           strategy.setStatus(StrategyStatus.RUNNING);
         }
       }
@@ -195,7 +253,7 @@ public class StrategyService {
       throw new NotFoundInfoException(ErrorCode.USER_NOT_FOUND);
     }
 
-    if(filteredStrategies(strategyId).isEmpty() || filteredStrategies(strategyId) == null) {
+    if(filteredStrategies(strategyId) == null) {
       log.error("존재하지 않는 전략 입니다.");
       throw new InvalidValueException(ErrorCode.INVALID_INPUT_VALUE);
     }
@@ -216,11 +274,11 @@ public class StrategyService {
     return filteredStrategies;
   }
 
-  public List<StrategyDataDTO> filteredStrategies(Long id) {
+  public StrategyDataDTO filteredStrategies(Long id) {
     List<StrategyDataDTO> filteredStrategies = strategies.stream()
         .filter(strategy -> strategy.getStrategyId().equals(id))
         .toList();
-    return filteredStrategies;
+    return filteredStrategies.get(0);
   }
 
   public double calculateMonthlyReducedDays(double monthlySavingMoney, Long targetPrice, Integer dailyIncrease) {

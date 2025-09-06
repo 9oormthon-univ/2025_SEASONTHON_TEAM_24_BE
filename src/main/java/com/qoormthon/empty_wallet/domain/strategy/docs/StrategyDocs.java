@@ -511,6 +511,85 @@ public interface StrategyDocs {
   public ResponseDTO<String> startStrategy(Long strategyId, HttpServletRequest httpServletRequest);
 
 
+  @ApiResponse(
+      responseCode = "200",
+      description = "조회 성공 시",
+      content = @Content(
+          mediaType = "application/json",
+          examples = @ExampleObject(
+              value =
+                  """
+                      {
+                        "localDateTime": "2025-09-06T23:11:36.978056",
+                        "statusCode": 200,
+                        "code": "SUCCESS",
+                        "message": "전략 목록 조회에 성공하였습니다.",
+                        "data": {
+                          "totalCount": 2,
+                          "list": [
+                            {
+                              "strategyId": 1,
+                              "type": "CAF",
+                              "title": "집/사무실 드립 1잔으로 대체",
+                              "description": "카페 대신 집이나 사무실에서 직접 드립 커피를 내려 마시기",
+                              "dailySaving": 3700,
+                              "monthlySaving": 111000,
+                              "dailyReducedDays": -299.2,
+                              "monthlyReducedDays": -300,
+                              "status": "RUNNING",
+                              "howToStep": [
+                                {
+                                  "title": "원두와 드리퍼 구비하고 가격 차이 확인하기",
+                                  "content": "카페 커피와 드립 커피의 가격 차이를 기록해 두면, 어느새 '오늘은 집에서 내려 마셔야겠다'라는 생각이 더 자주 들 거예요."
+                                },
+                                {
+                                  "title": "매일 아침 홈 카페 루틴 만들기",
+                                  "content": "아침 10분 일찍 일어나서 드립 커피를 내리는 루틴을 만들어보세요. 여유로운 시작과 함께 하루 3,700원을 아낄 수 있어요."
+                                },
+                                {
+                                  "title": "텀블러에 담아서 외출하기",
+                                  "content": "집에서 내린 커피를 텀블러에 담고 나가면 자연스럽게 카페에 들를 필요가 없어져요. 준비된 커피가 있다는 것만으로도 충분히 만족스러워집니다."
+                                }
+                              ],
+                              "word": "기회비용: 어떤 선택을 할 때 포기해야 하는 다른 대안의 가치. 카페 커피를 포기하고 홈 드립을 선택함으로써 얻는 절약 효과"
+                            },
+                            {
+                              "strategyId": 3,
+                              "type": "CAF",
+                              "title": "편의점 원두커피로 대체",
+                              "description": "브랜드 카페 대신 편의점의 저렴한 원두커피로 변경",
+                              "dailySaving": 3000,
+                              "monthlySaving": 90000,
+                              "dailyReducedDays": -299,
+                              "monthlyReducedDays": -300,
+                              "status": "RUNNING",
+                              "howToStep": [
+                                {
+                                  "title": "근처 편의점 원두커피 맛 테스트하기",
+                                  "content": "평소 가던 카페 대신 편의점 몇 곳의 원두커피를 마셔보세요. 생각보다 맛이 괜찮다는 걸 확인하면 바꾸기가 훨씬 쉬워져요."
+                                },
+                                {
+                                  "title": "편의점 멤버십으로 추가 할인받기",
+                                  "content": "세븐일레븐, CU 등의 멤버십에 가입하면 원두커피를 더 저렴하게 마실 수 있어요. 적립 포인트로 나중에 공짜 커피도 가능해집니다."
+                                },
+                                {
+                                  "title": "카페 방문 욕구 생길 때 편의점으로 방향 바꾸기",
+                                  "content": "스타벅스 가고 싶을 때 '잠깐, 편의점 커피도 나쁘지 않았는데'라고 생각해보세요. 3,000원 절약과 함께 더 빠르게 커피를 마실 수 있어요."
+                                }
+                              ],
+                              "word": "대체재: 비슷한 기능을 하는 다른 상품. 브랜드 카페와 편의점 커피는 서로 대체재 관계"
+                            }
+                          ]
+                        }
+                      }
+                  """
+          )
+      )
+  )
+  @Operation(summary = "유저가 진행중인 도전을 전부 조회하는 api 입니다.", description = "요청에 토큰이 필요합니다.")
+  public ResponseDTO<ListResponseDTO<List<StrategyDataDTO>>> getStrategiesByrunning(HttpServletRequest httpServletRequest);
+
+
 
 
 

@@ -35,6 +35,13 @@ public class StrategyController implements StrategyDocs {
   }
 
   @Override
+  @GetMapping("/running")
+  public ResponseDTO<ListResponseDTO<List<StrategyDataDTO>>> getStrategiesByrunning(HttpServletRequest httpServletRequest) {
+    List<StrategyDataDTO> strategies = strategyService.getStrategiesByrunning(httpServletRequest);
+    return ResponseDTO.of(ListResponseDTO.of(strategies), "전략 목록 조회에 성공하였습니다.");
+  }
+
+  @Override
   @GetMapping("/type")
   public ResponseDTO<ListResponseDTO<List<StrategyDataDTO>>> getStrategiesByType(
       @RequestParam String type,
