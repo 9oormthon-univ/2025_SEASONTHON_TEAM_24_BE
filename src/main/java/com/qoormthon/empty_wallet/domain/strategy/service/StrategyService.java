@@ -260,7 +260,9 @@ public class StrategyService {
 
 
     } catch (Exception e) {
-      log.error(e.getMessage());
+      log.error("Error occurred in method: {}, Message: {}",
+          Thread.currentThread().getStackTrace()[1].getMethodName(),
+          e.getMessage(), e);
       throw new InternalServerException(ErrorCode.INTERNAL_SERVER_ERROR);
     }
   }
@@ -283,7 +285,37 @@ public class StrategyService {
 
     StrategyActive strategyActive = StrategyActive.of(strategyId, user, StrategyStatus.RUNNING, StrategyType.DAILY);
 
+    // 이미 진행중인 전략이 있을 경우 기존 전략 삭제
+    if(strategyActiveRepository.findByStrategyId(strategyId).isPresent()) {
+      strategyActiveRepository.deleteByStrategyId(strategyId);
+    }
+
     strategyActiveRepository.save(strategyActive);
+  }
+
+  @Transactional
+  public void endStrategy (Long strategyId, HttpServletRequest httpServletRequest) {
+    String token = jwtTokenProvider.extractToken(httpServletRequest);
+    Long userId = jwtTokenProvider.getUserIdFromToken(token);
+    User user = userRepository.findById(userId).orElse(null);
+    StrategyActive strategyActive = strategyActiveRepository.findByStrategyId(strategyId).orElse(null);
+
+    if(user == null) {
+      log.error("존재하지 않는 유저 입니다.");
+      throw new NotFoundInfoException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    if(filteredStrategies(strategyId) == null) {
+      log.error("존재하지 않는 전략 입니다.");
+      throw new InvalidValueException(ErrorCode.INVALID_INPUT_VALUE);
+    }
+
+    if(strategyActive == null) {
+      log.error("진행중인 전략 테이블에 등록되지 않은 전략입니다. / strategy_active 테이블을 확인하세요. : " + strategyId);
+      throw new InvalidValueException(ErrorCode.INVALID_INPUT_VALUE);
+    }
+
+    strategyActive.setStatus(StrategyStatus.DONE);
   }
 
 

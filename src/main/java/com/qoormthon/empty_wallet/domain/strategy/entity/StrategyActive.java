@@ -54,6 +54,11 @@ public class StrategyActive {
     this.type = type;
   }
 
+  public StrategyActive setStatus(StrategyStatus strategyStatus) {
+    this.status = strategyStatus;
+    return this;
+  }
+
   public static StrategyActive of(Long strategyId, User user, StrategyStatus status, StrategyType type) {
     return StrategyActive.builder()
         .strategyActiveId(null)

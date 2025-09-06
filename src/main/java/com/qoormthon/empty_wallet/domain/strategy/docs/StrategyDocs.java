@@ -608,4 +608,26 @@ public interface StrategyDocs {
   public ResponseDTO<ListResponseDTO<List<StrategyDataDTO>>> getStrategiesByrunning(HttpServletRequest httpServletRequest);
 
 
+  @ApiResponse(
+      responseCode = "200",
+      description = "도전 시작하기 성공 시",
+      content = @Content(
+          mediaType = "application/json",
+          examples = @ExampleObject(
+              value =
+                  """
+                      {
+                        "localDateTime": "2025-09-06T17:35:58.96475",
+                        "statusCode": 200,
+                        "code": "SUCCESS",
+                        "message": null,
+                        "data": "도전 시작에 성공하였습니다."
+                      }
+                  """
+          )
+      )
+  )
+  @Operation(summary = "도전 끝내기 api 입니다.", description = "진행중인 도전을 완료시키는 api 입니다.")
+  public ResponseDTO<String> endStrategy(Long strategyId, HttpServletRequest httpServletRequest);
+
 }

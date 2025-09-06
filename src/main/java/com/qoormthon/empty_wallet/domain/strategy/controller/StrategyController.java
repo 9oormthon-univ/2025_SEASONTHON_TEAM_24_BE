@@ -35,6 +35,13 @@ public class StrategyController implements StrategyDocs {
   }
 
   @Override
+  @PostMapping("/{strategyId}/end")
+  public ResponseDTO<String> endStrategy(@PathVariable Long strategyId, HttpServletRequest httpServletRequest) {
+    strategyService.endStrategy(strategyId, httpServletRequest);
+    return ResponseDTO.of((String)null, "진행중인 전략이 종료되었습니다.");
+  }
+
+  @Override
   @GetMapping("/user/running")
   public ResponseDTO<ListResponseDTO<List<StrategyDataDTO>>> getStrategiesByrunning(HttpServletRequest httpServletRequest) {
     List<StrategyDataDTO> strategies = strategyService.getStrategiesByrunning(httpServletRequest);
