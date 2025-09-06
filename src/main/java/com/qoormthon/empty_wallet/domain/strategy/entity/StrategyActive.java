@@ -1,6 +1,7 @@
 package com.qoormthon.empty_wallet.domain.strategy.entity;
 
 import com.qoormthon.empty_wallet.domain.user.entity.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,7 +29,7 @@ public class StrategyActive {
   private Long strategyId;
 
   @JoinColumn(name = "user_id")
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   private User user;
 
   @Enumerated(EnumType.STRING)

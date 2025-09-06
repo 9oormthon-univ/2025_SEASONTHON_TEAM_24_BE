@@ -29,7 +29,7 @@ public class User {
   @Column(name = "user_id")
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "character_id")
   private Character character;
 
