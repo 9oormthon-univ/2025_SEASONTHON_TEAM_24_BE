@@ -4,6 +4,7 @@ import com.qoormthon.empty_wallet.domain.character.entity.Score;
 import com.qoormthon.empty_wallet.domain.character.repository.ScoreRepository;
 import com.qoormthon.empty_wallet.domain.strategy.repository.StrategyActiveRepository;
 import com.qoormthon.empty_wallet.domain.user.docs.UserDocs;
+import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysAndGoalPayResponse;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysResponse;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,6 +68,14 @@ public class UserController implements UserDocs {
         .build();
 
     return ResponseDTO.of(response, "계산에 성공하였습니다.");
+  }
+
+
+
+  @GetMapping("/required-days")
+  public ResponseDTO<RequiredDaysAndGoalPayResponse> calculateRequiredDaysAndGoalpay(HttpServletRequest httpServletRequest) {
+    RequiredDaysAndGoalPayResponse response = userService.calculateRequiredDaysAndGoalpay(httpServletRequest);
+    return ResponseDTO.of(response, "조회에 성공하였습니다.");
   }
 
   @DeleteMapping

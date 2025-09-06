@@ -1,5 +1,6 @@
 package com.qoormthon.empty_wallet.domain.user.docs;
 
+import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysAndGoalPayResponse;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysResponse;
 import com.qoormthon.empty_wallet.global.common.dto.response.ResponseDTO;
@@ -102,5 +103,32 @@ public interface UserDocs {
   )
   @Operation(summary = "사용자 전체 삭제 api 입니다.", description = "db에 로그인된 사용자를 모두 제거합니다.")
   public ResponseDTO<String> deleteAllUser();
+
+
+
+  @ApiResponse(
+      responseCode = "200",
+      description = "조회에 성공한 경우",
+      content = @Content(
+          mediaType = "application/json",
+          examples = @ExampleObject(
+              value =
+                  """
+                      {
+                        "localDateTime": "2025-09-06T22:19:13.892748",
+                        "statusCode": 200,
+                        "code": "SUCCESS",
+                        "message": "조회에 성공하였습니다.",
+                        "data": {
+                          "days": 30000,
+                          "targetPrice": 100000
+                        }
+                      }
+                  """
+          )
+      )
+  )
+  @Operation(summary = "목표금액, 목표 금액까지 남은 기간을 반환하는 api 입니다.", description = "토큰이 필요하며 먼저 POST:/api/users/required-days 로 목표 금액과 월 수익을 입력해야 합니다.")
+  public ResponseDTO<RequiredDaysAndGoalPayResponse> calculateRequiredDaysAndGoalpay(HttpServletRequest httpServletRequest);
 
 }

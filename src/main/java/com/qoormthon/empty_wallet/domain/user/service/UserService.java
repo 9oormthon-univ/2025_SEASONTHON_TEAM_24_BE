@@ -1,11 +1,13 @@
 package com.qoormthon.empty_wallet.domain.user.service;
 
+import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysAndGoalPayResponse;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysResponse;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
 import com.qoormthon.empty_wallet.global.exception.ErrorCode;
 import com.qoormthon.empty_wallet.global.exception.InvalidValueException;
+import com.qoormthon.empty_wallet.global.exception.NotFoundInfoException;
 import com.qoormthon.empty_wallet.global.security.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -66,6 +68,38 @@ public class UserService {
 
 
     return roundedDays;
+  }
+
+  @Transactional(readOnly = true)
+  public RequiredDaysAndGoalPayResponse calculateRequiredDaysAndGoalpay(HttpServletRequest httpServletRequest) {
+    String accessToken = jwtTokenProvider.extractToken(httpServletRequest);
+    Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+
+    User user = userRepository.findById(userId).orElse(null);
+
+    if(user == null) {
+      log.error("유저가 존재하지 않습니다. : " + userId);
+      throw new NotFoundInfoException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    Long targetPrice = user.getTargetPrice();
+    Long monthlyPay = user.getMonthlyPay();
+
+    double savingMoney = (monthlyPay)/10.0; // 한달 저축 금액
+    double days = ((double)targetPrice/(savingMoney))*30;
+    double roundedDays = Math.round(days); // 소수점 반올림하도록 수정
+
+
+    RequiredDaysAndGoalPayResponse response = RequiredDaysAndGoalPayResponse
+        .builder()
+        .targetPrice(targetPrice)
+        .days(roundedDays)
+        .build();
+
+    return response;
+
+
+
   }
 
 }
