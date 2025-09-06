@@ -4,6 +4,7 @@ import com.qoormthon.empty_wallet.domain.character.entity.Character;
 import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO;
 import com.qoormthon.empty_wallet.domain.strategy.entity.StrategyActive;
 import com.qoormthon.empty_wallet.domain.strategy.entity.StrategyStatus;
+import com.qoormthon.empty_wallet.domain.strategy.entity.StrategyType;
 import com.qoormthon.empty_wallet.domain.strategy.repository.StrategyActiveRepository;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
 import com.qoormthon.empty_wallet.domain.user.repository.UserRepository;
@@ -130,6 +131,17 @@ public class StrategyService {
         strategy.setMonthlySaving(strategy.getDailySaving()*30);
       }
 
+      // 데일리/위클리 상태값 설정
+      for(StrategyDataDTO strategy : response) {
+        StrategyActive strategyActive = strategyActiveRepository.findByStrategyId(strategy.getStrategyId()).orElse(null);
+
+        if(strategyActive == null) {
+          strategy.setGoalType(StrategyType.DAILY);
+        } else {
+          strategy.setGoalType(strategyActive.getType());
+        }
+      }
+
       // 하루/한달 실천 시 차감 일 수
       for(StrategyDataDTO strategy : response) {
         double monthlySavingMoney = user.getMonthlyPay()/10.0;
@@ -199,6 +211,17 @@ public class StrategyService {
         strategy.setMonthlySaving(strategy.getDailySaving()*30);
       }
 
+      // 데일리/위클리 상태값 설정
+      for(StrategyDataDTO strategy : filteredStrategies) {
+        StrategyActive strategyActive = strategyActiveRepository.findByStrategyId(strategy.getStrategyId()).orElse(null);
+
+        if(strategyActive == null) {
+          strategy.setGoalType(StrategyType.DAILY);
+        } else {
+          strategy.setGoalType(strategyActive.getType());
+        }
+      }
+
       // 전략 상태 설정
       for(StrategyDataDTO strategy : filteredStrategies) {
 
@@ -258,7 +281,7 @@ public class StrategyService {
       throw new InvalidValueException(ErrorCode.INVALID_INPUT_VALUE);
     }
 
-    StrategyActive strategyActive = StrategyActive.of(strategyId, user, StrategyStatus.RUNNING, null);
+    StrategyActive strategyActive = StrategyActive.of(strategyId, user, StrategyStatus.RUNNING, StrategyType.DAILY);
 
     strategyActiveRepository.save(strategyActive);
   }

@@ -2,6 +2,7 @@ package com.qoormthon.empty_wallet.domain.strategy.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.qoormthon.empty_wallet.domain.strategy.entity.StrategyStatus;
+import com.qoormthon.empty_wallet.domain.strategy.entity.StrategyType;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,9 @@ public class StrategyDataDTO {
   private String title;
   private String description;
   private Integer dailySaving;
+
+  @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+  private StrategyType goalType;
 
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Integer monthlySaving;
