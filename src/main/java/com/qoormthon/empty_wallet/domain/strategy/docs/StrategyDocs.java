@@ -10,9 +10,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Tag(name = "전략 조회 api 입니다.", description = "타입별 전략 정보를 조회하는 기능을 제공합니다.")
+@Tag(name = "전략 관련 api 입니다.", description = "전략 정보 조회 및 시작 기능을 제공합니다.")
 public interface StrategyDocs {
 
   @ApiResponse(
@@ -109,4 +110,20 @@ public interface StrategyDocs {
   @Operation(summary = "유저에게 지정된 캐릭터의 전략 조회 api 입니다.", description = "타입별로 페이징 처리된 전략을 조회합니다. / 해당 api를 호출하려면 먼저 캐릭터가 지정되어야 합니다.(캐릭터 지정 api: /api/surveys/responses)")
   public ResponseDTO<ListResponseDTO<List<StrategyDataDTO>>> getStrategiesByUser(int page, int size,
       HttpServletRequest httpServletRequest);
+
+
+  @ApiResponse(
+      responseCode = "200",
+      description = "전략 목록 조회 성공",
+      content = @Content(
+          mediaType = "application/json",
+          examples = @ExampleObject(
+              value =
+                  """
+                  """
+          )
+      )
+  )
+  @Operation(summary = "도전 시작하기 api 입니다.", description = "도전 시작하기 버튼을 누르면 호출되는 api 입니다.")
+  public ResponseDTO<String> startStrategy(Long strategyId, HttpServletRequest httpServletRequest);
 }
