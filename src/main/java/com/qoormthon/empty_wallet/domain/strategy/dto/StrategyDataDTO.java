@@ -1,6 +1,7 @@
 package com.qoormthon.empty_wallet.domain.strategy.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,7 +29,16 @@ public class StrategyDataDTO {
   @JsonProperty(access = JsonProperty.Access.READ_ONLY)
   private Double monthlyReducedDays;
 
-  private String howToStep;
+  private List<HowToStep> howToStep;
   private String word;
+
+  @AllArgsConstructor
+  @NoArgsConstructor
+  @Getter
+  @Setter
+  public static class HowToStep {
+    private String title;
+    private String content;
+  }
 
 }
