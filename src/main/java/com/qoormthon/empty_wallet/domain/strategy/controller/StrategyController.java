@@ -8,7 +8,10 @@ import com.qoormthon.empty_wallet.global.common.dto.response.ResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +26,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class StrategyController implements StrategyDocs {
 
   private final StrategyService strategyService;
+
+  @Override
+  @PostMapping("/{strategyId}/start")
+  public ResponseDTO<String> startStrategy(@PathVariable Long strategyId, HttpServletRequest httpServletRequest) {
+    strategyService.startStrategy(strategyId, httpServletRequest);
+    return ResponseDTO.of("전략 시작에 성공하였습니다.", null);
+  }
 
   @Override
   @GetMapping("/type")
