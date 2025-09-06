@@ -352,7 +352,7 @@ public class StrategyService {
 
   public double calculateDailyReducedDays(double monthlySavingMoney, Long targetPrice, Integer dailyIncrease) {
     // 기존: 한달 저축액으로 목표 달성까지 걸리는 일수
-    double originalDays = ((double)targetPrice / monthlySavingMoney) * 30;
+    double originalDays = ((double)targetPrice / monthlySavingMoney) * 30; //300일
 
     // 하루 저축액 증가 적용한 새로운 한달 저축액
     double newMonthlySavings = monthlySavingMoney + dailyIncrease;
