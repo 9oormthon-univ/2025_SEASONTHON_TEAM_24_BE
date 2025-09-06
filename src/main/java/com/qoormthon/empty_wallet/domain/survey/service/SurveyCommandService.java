@@ -60,7 +60,7 @@ public class SurveyCommandService {
         // 3) 요청 정리: 같은 surveyId의 마지막 선택만 인정
         Map<Long, SubmitSurveyRequest.Answer> lastBySurvey = new LinkedHashMap<>();
         if (req.answers() != null) {
-            for (var a : req.answers()) {
+            for (SubmitSurveyRequest.Answer a : req.answers()) {
                 if (a == null || a.surveyId() == null || a.optionType() == null) continue;
                 if (!requiredIds.contains(a.surveyId())) continue; // 현재 타입의 문항이 아니면 무시
                 lastBySurvey.put(a.surveyId(), a);
@@ -71,7 +71,7 @@ public class SurveyCommandService {
         int accepted = 0;
         Set<Long> answeredSurveyIds = new HashSet<>();
 
-        for (var entry : lastBySurvey.entrySet()) {
+        for (Map.Entry<Long, SubmitSurveyRequest.Answer> entry : lastBySurvey.entrySet()) {
             Long surveyId = entry.getKey();
             String optType = entry.getValue().optionType();
 

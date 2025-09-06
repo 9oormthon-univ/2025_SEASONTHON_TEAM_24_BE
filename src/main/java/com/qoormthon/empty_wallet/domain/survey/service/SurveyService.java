@@ -1,5 +1,6 @@
 package com.qoormthon.empty_wallet.domain.survey.service;
 
+import com.qoormthon.empty_wallet.domain.character.entity.Character;
 import com.qoormthon.empty_wallet.domain.character.service.CharacterScoreService;
 import com.qoormthon.empty_wallet.domain.survey.dto.request.SubmitSurveyRequest;
 import com.qoormthon.empty_wallet.domain.survey.dto.response.OptionResponse;
@@ -101,14 +102,15 @@ public class SurveyService {
     // =====================[ 제출: 응답 미저장, 점수만 반영 ]=====================
     @Transactional
     public SubmitSurveyResponse submit(Long userId, SubmitSurveyRequest req) {
+
         // 1) 검증(저장 없음): 유효한 답 개수 및 완료 여부 계산
-        var checked = commandService.submit(req); // completed(), savedCount()
+        SubmitSurveyResponse  checked = commandService.submit(req); // completed(), savedCount()
 
         // 2) 점수 반영 (FULL=덮어쓰기, QUICK=가산; 동점 보정은 내부 규칙)
         characterScoreService.applySurvey(userId, req);
 
         // 3) 최고 캐릭터 선정 & 회원.character 매핑
-        var selected = characterScoreService.mapTopCharacter(userId);
+        Character selected = characterScoreService.mapTopCharacter(userId);
 
         // FULL에서만 savings 계산
         Integer savingsDays = null;
@@ -170,7 +172,6 @@ public class SurveyService {
     }
 
     private Long safeTargetPrice(User user) {
-        // target_price(목표금액) 필드의 게터가 getTargetPrice()라면 그대로 사용
         return user.getTargetPrice();
     }
 

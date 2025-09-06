@@ -53,7 +53,7 @@ public class CharacterScoreService {
 
             SurveyOption opt;
             if (req.type() == SurveyType.QUICK) {
-                var candidates = optionRepo.findAllBySurveyIdAndType(a.surveyId(), a.optionType());
+                List<SurveyOption> candidates = optionRepo.findAllBySurveyIdAndType(a.surveyId(), a.optionType());
                 if (candidates.isEmpty()) throw new IllegalArgumentException("OPTION_NOT_FOUND");
 
                 opt = candidates.stream()
@@ -109,7 +109,7 @@ public class CharacterScoreService {
 
             // 최고점 동점 집합
             Set<CharCode> leaders = new HashSet<>();
-            for (var e : sum.entrySet()) {
+            for (Map.Entry<CharCode, Long> e : sum.entrySet()) {
                 if (e.getValue() == max) leaders.add(e.getKey());
             }
 
@@ -164,10 +164,10 @@ public class CharacterScoreService {
 
     @Transactional
     public Character mapTopCharacter(Long userId) {
-        var user = userRepo.findById(userId)
+        User  user = userRepo.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("USER_NOT_FOUND"));
 
-        var s = scoreRepo.findByUser(user)
+        Score s = scoreRepo.findByUser(user)
                 .orElseThrow(() -> new IllegalStateException("SCORE_NOT_FOUND"));
 
         long max = Math.max(Math.max(Math.max(s.getCaf(), s.getTax()), Math.max(s.getImp(), s.getSub())),
@@ -190,7 +190,7 @@ public class CharacterScoreService {
         final CharCode resolved = chosen;
         final String code = resolved.name();
 
-        var character = characterRepo.findByCode(code)
+        Character character = characterRepo.findByCode(code)
                 .orElseThrow(() -> new IllegalStateException("CHARACTER_ROW_NOT_FOUND: " + code));
 
         user.setCharacter(character);

@@ -58,7 +58,7 @@ public class SurveyController implements SurveyDocs {
         // 프론트에서 character 안 받으니 param/header는 null로, 유저ID로 캐릭터 코드 결정
         String code = characterResolver.resolve(null, userId);
 
-        var body = surveyService.getSurveyBundle(SurveyType.QUICK, code);
+        SurveyBundleResponse  body = surveyService.getSurveyBundle(SurveyType.QUICK, code);
         return ResponseDTO.of(body, "QUICK 설문 조회 성공");
     }
 
@@ -71,7 +71,7 @@ public class SurveyController implements SurveyDocs {
         ) {
             log.info("[SURVEY] principal id={}", userId);
             if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
-            var res = surveyService.submit(userId, request);
+            SubmitSurveyResponse res = surveyService.submit(userId, request);
             return ResponseDTO.of(res, "설문 검증 성공");
         }
 }
