@@ -177,7 +177,7 @@ public interface SurveyDocs {
             summary = "설문 제출(검증)",
             description = """
                     요청으로 넘어온 답들을 검증해 설문 종류(type), 완료(completed) 여부와 저장된 개수(savedCount)를 반환합니다.
-                    캐릭터 판정이 가능하면 code/name/desc/trait 도 함께 내려갑니다.
+                    캐릭터 판정이 가능하면 code/name/desc/trait/savings도 함께 내려갑니다.
                     """
     )
     @RequestBody(
@@ -211,21 +211,22 @@ public interface SurveyDocs {
                             examples = @ExampleObject(
                                     name = "Success",
                                     value = """
-                                    {
-                                        "localDateTime": "2025-09-05T03:47:05.563997",
-                                        "statusCode": 200,
-                                        "code": "SUCCESS",
-                                        "message": "설문 검증 성공",
-                                        "data": {
-                                            "completed": true,
-                                            "savedCount": 3,
-                                            "code": "TAX",
-                                            "name": "시간이 금 FLEX 꺼비",
-                                            "desc": "“시간은 금이야”라며 택시, 배달을 거리낌 없이 쓰는 유형",
-                                            "trait": "'교통,배달비에 큰 돈 쓰는 편','“피곤한데 뭐 어때” 마인드','빠르고 편한 선택지를 무조건 고름'"
-                                        }
-                                    }
-                                    """
+                {
+                    "localDateTime": "2025-09-05T03:47:05.563997",
+                    "statusCode": 200,
+                    "code": "SUCCESS",
+                    "message": "설문 검증 성공",
+                    "data": {
+                        "completed": true,
+                        "savedCount": 3,
+                        "code": "TAX",
+                        "name": "시간이 금 FLEX 꺼비",
+                        "desc": "“시간은 금이야”라며 택시, 배달을 거리낌 없이 쓰는 유형",
+                        "trait": "'교통,배달비에 큰 돈 쓰는 편','“피곤한데 뭐 어때” 마인드','빠르고 편한 선택지를 무조건 고름'",
+                        "savings": 210
+                    }
+                }
+                """
                             )
                     )
             ),
