@@ -13,9 +13,8 @@ import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@Tag(name = "남은 일수 계산 api / 유저 관련 api 입니다.", description = "유저가 입력한 값에 따라 목표 금액가지 남은 일수를 계산해줍니다.")
+@Tag(name = "유저 관련 api 입니다.", description = "유저가 입력한 값에 따라 목표 금액가지 남은 일수를 계산해줍니다.")
 public interface UserDocs {
-
 
   @ApiResponse(
       responseCode = "200",
@@ -57,7 +56,7 @@ public interface UserDocs {
           )
       )
   )
-  @Operation(summary = "목표 금액까지 남은 일수 계산 api 입니다.", description = "엑세스 토큰은 필요하지 않습니다. / (monthlyPay(원 단위):월 수익), (targetPrice(원 단위):목표금액) 정보를 넣어주세요.")
+  @Operation(summary = "목표 금액까지 남은 일수 계산 api 입니다.", description = "monthlyPay:월 수익(원), targetPrice:목표금액(원) 정보를 넣어주세요.")
   ResponseDTO<RequiredDaysResponse> calculateRequiredDays(RequiredDaysRequest request,
       BindingResult bindingResult, HttpServletRequest httpServletRequest);
 
