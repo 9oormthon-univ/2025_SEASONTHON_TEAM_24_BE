@@ -1,5 +1,8 @@
 package com.qoormthon.empty_wallet.domain.user.controller;
 
+import com.qoormthon.empty_wallet.domain.character.entity.Score;
+import com.qoormthon.empty_wallet.domain.character.repository.ScoreRepository;
+import com.qoormthon.empty_wallet.domain.strategy.repository.StrategyActiveRepository;
 import com.qoormthon.empty_wallet.domain.user.docs.UserDocs;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysRequest;
 import com.qoormthon.empty_wallet.domain.user.dto.RequiredDaysResponse;
@@ -35,6 +38,8 @@ public class UserController implements UserDocs {
 
   private final UserService userService;
   private final UserRepository userRepository;
+  private final ScoreRepository scoreRepository;
+  private final StrategyActiveRepository strategyActiveRepository;
 
   /**
    * 목표 금액까지 필요한 일 수를 계산합니다.
@@ -69,7 +74,10 @@ public class UserController implements UserDocs {
   public ResponseDTO<String> deleteAllUser() {
 
     try {
+      scoreRepository.deleteAll();
+      strategyActiveRepository.deleteAll();
       userRepository.deleteAll();
+
       return ResponseDTO.of((String)null, "삭제에 성공하였습니다!");
 
     } catch (Exception e) {
