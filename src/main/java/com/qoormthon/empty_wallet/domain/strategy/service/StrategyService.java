@@ -2,6 +2,7 @@ package com.qoormthon.empty_wallet.domain.strategy.service;
 
 import com.qoormthon.empty_wallet.domain.character.entity.Character;
 import com.qoormthon.empty_wallet.domain.strategy.dto.StrategyDataDTO;
+import com.qoormthon.empty_wallet.domain.strategy.entity.StrategyActive;
 import com.qoormthon.empty_wallet.domain.strategy.entity.StrategyStatus;
 import com.qoormthon.empty_wallet.domain.strategy.repository.StrategyActiveRepository;
 import com.qoormthon.empty_wallet.domain.user.entity.User;
@@ -28,6 +29,7 @@ public class StrategyService {
   private final UserRepository userRepository;
   private final StrategyActiveRepository strategyActiveRepository;
 
+  @Transactional
   public List<StrategyDataDTO> getStrategiesByType(String type, int page, int size, HttpServletRequest httpServletRequest) {
     try {
       String accessToken = jwtTokenProvider.extractToken(httpServletRequest);
@@ -69,9 +71,25 @@ public class StrategyService {
         strategy.setMonthlyReducedDays(monthlyReducedDays);
       }
 
+      // 전략 상태 설정
+      for(StrategyDataDTO strategy : filteredStrategies) {
 
+        StrategyActive strategyActive =  strategyActiveRepository.findById(strategy.getStrategyId()).orElse(null);
 
+        // 해당 전략을 '도전 시작하기' 누르지 않은 경우
+        if(strategyActive == null) {
+          strategy.setStatus(StrategyStatus.WAITING);
+        }
 
+        // 해당 전략을 완료하였을 경우
+        else if(strategyActive.getStatus().equals(StrategyStatus.DONE)) {
+          strategy.setStatus(StrategyStatus.DONE);
+        }
+
+        else if(strategyActive.getStatus().equals(StrategyStatus.RUNNING)) {
+          strategy.setStatus(StrategyStatus.RUNNING);
+        }
+      }
       return filteredStrategies.subList(start, end);
     } catch (Exception e) {
       log.error(e.getMessage());
@@ -123,6 +141,26 @@ public class StrategyService {
         strategy.setMonthlySaving(strategy.getDailySaving()*30);
       }
 
+      // 전략 상태 설정
+      for(StrategyDataDTO strategy : filteredStrategies) {
+
+        StrategyActive strategyActive =  strategyActiveRepository.findById(strategy.getStrategyId()).orElse(null);
+
+        // 해당 전략을 '도전 시작하기' 누르지 않은 경우
+        if(strategyActive == null) {
+          strategy.setStatus(StrategyStatus.WAITING);
+        }
+
+        // 해당 전략을 완료하였을 경우
+        else if(strategyActive.getStatus().equals(StrategyStatus.DONE)) {
+          strategy.setStatus(StrategyStatus.DONE);
+        }
+
+        else if(strategyActive.getStatus().equals(StrategyStatus.RUNNING)) {
+          strategy.setStatus(StrategyStatus.RUNNING);
+        }
+      }
+
       // 하루/한달 실천 시 차감 일 수
       for(StrategyDataDTO strategy : filteredStrategies) {
         double monthlySavingMoney = user.getMonthlyPay()/10.0;
@@ -146,6 +184,28 @@ public class StrategyService {
     }
   }
 
+  @Transactional
+  public void startStrategy(Long strategyId, HttpServletRequest httpServletRequest) {
+    String token = jwtTokenProvider.extractToken(httpServletRequest);
+    Long userId = jwtTokenProvider.getUserIdFromToken(token);
+    User user = userRepository.findById(userId).orElse(null);
+
+    if(user == null) {
+      log.error("존재하지 않는 유저 입니다.");
+      throw new NotFoundInfoException(ErrorCode.USER_NOT_FOUND);
+    }
+
+    if(filteredStrategies(strategyId).isEmpty() || filteredStrategies(strategyId) == null) {
+      log.error("존재하지 않는 전략 입니다.");
+      throw new InvalidValueException(ErrorCode.INVALID_INPUT_VALUE);
+    }
+
+    StrategyActive strategyActive = StrategyActive.of(strategyId, user, StrategyStatus.RUNNING, null);
+
+    strategyActiveRepository.save(strategyActive);
+  }
+
+
 
   // type별 전략 반환
   public List<StrategyDataDTO> filteredStrategies(String type) {
@@ -153,6 +213,13 @@ public class StrategyService {
         .filter(strategy -> strategy.getType().equals(type.toUpperCase()))
         .toList();
 
+    return filteredStrategies;
+  }
+
+  public List<StrategyDataDTO> filteredStrategies(Long id) {
+    List<StrategyDataDTO> filteredStrategies = strategies.stream()
+        .filter(strategy -> strategy.getStrategyId().equals(id))
+        .toList();
     return filteredStrategies;
   }
 
