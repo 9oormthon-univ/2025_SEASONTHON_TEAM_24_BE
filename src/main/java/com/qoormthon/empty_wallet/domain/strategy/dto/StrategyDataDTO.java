@@ -39,7 +39,7 @@ public class StrategyDataDTO {
 
 
   private List<HowToStep> howToStep;
-  private String word;
+  private Word word;
 
   @AllArgsConstructor
   @NoArgsConstructor
@@ -48,6 +48,16 @@ public class StrategyDataDTO {
   public static class HowToStep {
     private String title;
     private String content;
+  }
+
+
+  @AllArgsConstructor
+  @NoArgsConstructor
+  @Getter
+  @Setter
+  public static class Word {
+    private String keyword;
+    private String meaning;
   }
 
 }

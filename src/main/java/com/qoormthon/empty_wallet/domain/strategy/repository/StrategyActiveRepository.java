@@ -10,6 +10,7 @@ public interface StrategyActiveRepository extends JpaRepository<StrategyActive, 
 
   List<StrategyActive> findByStatus(StrategyStatus status);
   Optional<StrategyActive> findByStrategyId(Long strategyId);
+  void deleteByStrategyId(Long strategyId);
 
 
 }
