@@ -610,18 +610,18 @@ public interface StrategyDocs {
 
   @ApiResponse(
       responseCode = "200",
-      description = "도전 시작하기 성공 시",
+      description = "도전 종료하기 성공 시",
       content = @Content(
           mediaType = "application/json",
           examples = @ExampleObject(
               value =
                   """
                       {
-                        "localDateTime": "2025-09-06T17:35:58.96475",
+                        "localDateTime": "2025-09-07T03:41:31.011853",
                         "statusCode": 200,
                         "code": "SUCCESS",
-                        "message": null,
-                        "data": "도전 시작에 성공하였습니다."
+                        "message": "진행중인 전략이 종료되었습니다.",
+                        "data": null
                       }
                   """
           )
