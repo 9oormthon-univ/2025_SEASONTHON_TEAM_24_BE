@@ -33,8 +33,8 @@ public class UserService {
   @Transactional
   public double getDaysToGoal(RequiredDaysRequest requiredDaysRequest, HttpServletRequest httpServletRequest) {
 
-    Long targetPrice = requiredDaysRequest.getTargetPrice();
-    Long monthlyPay = requiredDaysRequest.getMonthlyPay();
+    Long targetPrice = requiredDaysRequest.getTargetPrice() * 10000;
+    Long monthlyPay = requiredDaysRequest.getMonthlyPay() * 10000;
 
     String accessToken = jwtTokenProvider.extractToken(httpServletRequest);
     Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
