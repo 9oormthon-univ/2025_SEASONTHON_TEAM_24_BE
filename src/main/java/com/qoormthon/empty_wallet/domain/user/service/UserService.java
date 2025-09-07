@@ -112,7 +112,7 @@ public class UserService {
     }
 
     Long monthlyPay = user.getMonthlyPay();
-    Long targetPrice = user.getTargetPrice();
+    Long targetPrice = user.getTargetPrice()
 
     double savingMoney = (monthlyPay)/10.0; // 한달 저축 금액
     double days = ((double)targetPrice/(savingMoney))*30;
@@ -121,8 +121,8 @@ public class UserService {
 
     UserResponse userResponse = UserResponse.builder()
         .name(user.getName())
-        .monthlyPay(user.getMonthlyPay() == null ? 0 : user.getMonthlyPay())
-        .targetPrice(user.getTargetPrice() == null ? 0 : user.getTargetPrice())
+        .monthlyPay(user.getMonthlyPay() == null ? 0 : user.getMonthlyPay() / 10000)
+        .targetPrice(user.getTargetPrice() == null ? 0 : user.getTargetPrice() / 10000)
         .days(roundedDays)
         .build();
 
