@@ -112,7 +112,7 @@ public class UserService {
     }
 
     Long monthlyPay = user.getMonthlyPay();
-    Long targetPrice = user.getTargetPrice()
+    Long targetPrice = user.getTargetPrice();
 
     double savingMoney = (monthlyPay)/10.0; // 한달 저축 금액
     double days = ((double)targetPrice/(savingMoney))*30;
