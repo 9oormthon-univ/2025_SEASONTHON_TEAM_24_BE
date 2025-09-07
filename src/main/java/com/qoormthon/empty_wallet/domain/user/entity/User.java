@@ -128,8 +128,8 @@ public class User {
 
   public void setDaysToGoal(RequiredDaysRequest requiredDaysRequest) {
     this.monthlyCost = null;
-    this.monthlyPay = requiredDaysRequest.getMonthlyPay();
-    this.targetPrice = requiredDaysRequest.getTargetPrice();
+    this.monthlyPay = requiredDaysRequest.getMonthlyPay()*10000;
+    this.targetPrice = requiredDaysRequest.getTargetPrice()*10000;
   }
 
   public void setCharacter(Character character) {   // 서비스에서 호출할 메서드
